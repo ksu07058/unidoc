@@ -1,0 +1,3936 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniDoc — Университетские справки без очередей</title>
+  <meta
+    name="description"
+    content="Цифровой сервис университета для онлайн-заказа справок, отслеживания готовности документов и обработки заявок в деканате."
+  />
+  <meta property="og:title" content="UniDoc — Университетские справки без очередей" />
+  <meta
+    property="og:description"
+    content="Заказывайте необходимые университетские документы онлайн и следите за их готовностью в личном кабинете."
+  />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --font-display: "Plus Jakarta Sans", "Manrope", system-ui, -apple-system, sans-serif;
+      --font-sans: "Manrope", system-ui, -apple-system, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      --text-main: #0F172A;
+      --text-secondary: #334155;
+      --text-muted: #475569;
+      --text-subtle: #64748B;
+      --primary: #1D4ED8;
+      --primary-hover: #1E40AF;
+      --primary-soft: #EFF6FF;
+      --surface-muted: #F8FAFC;
+      --border: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --emerald: #047857;
+      --emerald-bg: #ECFDF5;
+      --emerald-border: #A7F3D0;
+      --amber: #B45309;
+      --amber-bg: #FFFBEB;
+      --amber-border: #FDE68A;
+      --red: #B91C1C;
+      --red-bg: #FEF2F2;
+      --red-border: #FECACA;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-family: var(--font-sans);
+      scroll-behavior: smooth;
+      color: var(--text-main);
+      background-color: #FFFFFF;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: #FFFFFF;
+      color: var(--text-main);
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-display);
+      margin: 0;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+      color: inherit;
+    }
+
+    button {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    ul, dl, dd, dt {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    ::selection {
+      background-color: #DBEAFE;
+      color: #1E3A8A;
+    }
+
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .text-balance { text-wrap: balance; }
+    .font-mono { font-family: var(--font-mono); }
+    .font-display { font-family: var(--font-display); }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Layout containers */
+    .app-shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content {
+      flex: 1 1 auto;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 72rem;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .container-narrow {
+      width: 100%;
+      max-width: 56rem;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .container, .container-narrow {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .container, .container-narrow {
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+    }
+
+    /* Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      height: 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .brand-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.625rem;
+      flex-shrink: 0;
+      white-space: nowrap;
+      text-align: left;
+    }
+
+    .brand-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.5rem;
+      background-color: var(--primary);
+      color: #FFFFFF;
+      font-family: var(--font-display);
+      font-size: 0.875rem;
+      font-weight: 700;
+    }
+
+    .brand-badge-sm {
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--text-main);
+    }
+
+    .desktop-nav {
+      display: none;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .nav-link {
+      position: relative;
+      padding: 0.25rem 0;
+      white-space: nowrap;
+      flex-shrink: 0;
+      color: var(--text-muted);
+      transition: color 150ms ease;
+    }
+
+    .nav-link:hover {
+      color: var(--text-main);
+    }
+
+    .nav-link.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .nav-link.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1.3125rem;
+      height: 2px;
+      background-color: var(--primary);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .btn-header-login {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.5rem;
+      background-color: var(--primary);
+      color: #FFFFFF;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background-color 150ms ease;
+    }
+
+    .btn-header-login:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-mobile-menu {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .btn-mobile-menu:hover {
+      background-color: var(--surface-muted);
+    }
+
+    .mobile-drawer {
+      border-top: 1px solid var(--border);
+      background-color: #FFFFFF;
+      padding: 1rem;
+    }
+
+    .mobile-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .mobile-nav-link {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 0.75rem;
+      border-radius: 0.5rem;
+      text-align: left;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .mobile-nav-link:hover {
+      background-color: rgba(239, 246, 255, 0.7);
+      color: var(--primary);
+    }
+
+    @media (min-width: 768px) {
+      .desktop-nav { display: flex; }
+      .btn-header-login { display: inline-flex; }
+      .btn-mobile-menu { display: none; }
+      .mobile-drawer { display: none !important; }
+    }
+
+    /* Storage Alert Banner */
+    .storage-banner {
+      border-bottom: 1px solid #FDE68A;
+      background-color: #FFFBEB;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      color: #78350F;
+    }
+
+    .storage-banner-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      min-height: 46px;
+      font-size: 0.875rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #FFFFFF;
+      color: var(--text-main);
+      border: 1px solid var(--border-strong);
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      min-height: 46px;
+      font-size: 0.875rem;
+    }
+
+    .btn-secondary:hover {
+      border-color: #93C5FD;
+      background-color: rgba(239, 246, 255, 0.5);
+    }
+
+    .btn-sm-primary {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.875rem;
+      min-height: 38px;
+      font-size: 0.75rem;
+    }
+
+    .btn-sm-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-sm-soft {
+      background-color: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid #BFDBFE;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.875rem;
+      min-height: 38px;
+      font-size: 0.75rem;
+    }
+
+    .btn-sm-soft:hover {
+      background-color: #DBEAFE;
+    }
+
+    .btn-sm-outline {
+      background-color: #FFFFFF;
+      color: var(--text-main);
+      border: 1px solid var(--border-strong);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.875rem;
+      min-height: 38px;
+      font-size: 0.75rem;
+    }
+
+    .btn-sm-outline:hover {
+      border-color: #93C5FD;
+      color: var(--primary);
+    }
+
+    .btn-sm-muted {
+      background-color: var(--surface-muted);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.875rem;
+      min-height: 38px;
+      font-size: 0.75rem;
+    }
+
+    .btn-sm-muted:hover {
+      border-color: #93C5FD;
+      color: var(--primary);
+    }
+
+    /* Workspace Toolbar */
+    .workspace-toolbar {
+      border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+      background-color: var(--surface-muted);
+    }
+
+    .toolbar-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+
+    .lg-only-inline {
+      display: none;
+    }
+
+    @media (min-width: 1024px) {
+      .lg-only-inline {
+        display: inline;
+      }
+    }
+
+    .role-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .segmented {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background-color: #FFFFFF;
+      padding: 0.25rem;
+    }
+
+    .segmented-muted {
+      background-color: var(--surface-muted);
+    }
+
+    .seg-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      border-radius: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+      transition: background-color 150ms ease, color 150ms ease;
+    }
+
+    .seg-btn:hover {
+      color: var(--text-main);
+    }
+
+    .seg-btn.active-blue {
+      background-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .seg-btn.active-white {
+      background-color: #FFFFFF;
+      color: var(--text-main);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-height: 36px;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background-color: #FFFFFF;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .tool-btn:hover {
+      border-color: #93C5FD;
+      color: var(--primary);
+    }
+
+    .notif-wrap {
+      position: relative;
+    }
+
+    .notif-dropdown {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 0.5rem);
+      width: 320px;
+      max-width: calc(100vw - 2rem);
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background-color: #FFFFFF;
+      box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+      z-index: 50;
+      overflow: hidden;
+    }
+
+    @media (min-width: 640px) {
+      .notif-dropdown {
+        width: 380px;
+      }
+    }
+
+    .notif-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #F1F5F9;
+      padding: 0.75rem 1rem;
+    }
+
+    .notif-list {
+      max-height: 20rem;
+      overflow-y: auto;
+    }
+
+    .notif-item {
+      width: 100%;
+      display: block;
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #F1F5F9;
+      transition: background-color 150ms ease;
+    }
+
+    .notif-item:last-child {
+      border-bottom: none;
+    }
+
+    .notif-item.unread {
+      background-color: rgba(239, 246, 255, 0.45);
+    }
+
+    .notif-item:hover {
+      background-color: rgba(239, 246, 255, 0.7);
+    }
+
+    /* Sections & Cards */
+    .hero-section {
+      border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+      background: linear-gradient(to bottom, rgba(239, 246, 255, 0.65), #FFFFFF 45%, #FFFFFF);
+      padding: 3.5rem 0;
+    }
+
+    @media (min-width: 640px) {
+      .hero-section {
+        padding: 5rem 0;
+      }
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      align-items: stretch;
+    }
+
+    @media (min-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: repeat(12, 1fr);
+        gap: 3rem;
+      }
+      .hero-left { grid-column: span 6; display: flex; flex-direction: column; justify-content: center; }
+      .hero-right { grid-column: span 6; }
+    }
+
+    .eyebrow {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .hero-title {
+      margin-top: 0.75rem;
+      font-size: clamp(2.25rem, 4vw, 3.5rem);
+      line-height: 1.08;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text-main);
+    }
+
+    .hero-subtitle {
+      margin-top: 1.25rem;
+      max-width: 36rem;
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--text-secondary);
+    }
+
+    @media (min-width: 640px) {
+      .hero-subtitle { font-size: 1.125rem; }
+    }
+
+    .hero-cta-row {
+      margin-top: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.875rem;
+    }
+
+    .hero-meta {
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(226, 232, 240, 0.85);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+    }
+
+    .visual-frame {
+      height: 16rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background-color: var(--primary-soft);
+    }
+
+    @media (min-width: 640px) {
+      .visual-frame { height: 20rem; }
+    }
+
+    @media (min-width: 1024px) {
+      .visual-frame { height: 100%; min-height: 400px; }
+    }
+
+    .advantages-strip {
+      margin-top: 3.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background-color: #FFFFFF;
+      overflow: hidden;
+    }
+
+    .adv-item {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .adv-item:last-child {
+      border-bottom: none;
+    }
+
+    @media (min-width: 640px) {
+      .advantages-strip { grid-template-columns: repeat(2, 1fr); }
+      .adv-item:nth-child(odd) { border-right: 1px solid var(--border); }
+      .adv-item:nth-child(n+3) { border-bottom: none; }
+    }
+
+    @media (min-width: 1024px) {
+      .advantages-strip { grid-template-columns: repeat(4, 1fr); }
+      .adv-item { border-bottom: none; border-right: 1px solid var(--border); }
+      .adv-item:last-child { border-right: none; }
+    }
+
+    .icon-box {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.5rem;
+      background-color: var(--primary-soft);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-box-lg {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 0.75rem;
+    }
+
+    /* Section blocks */
+    .section-block {
+      padding: 4rem 0;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+    }
+
+    @media (min-width: 640px) {
+      .section-block { padding: 5rem 0; }
+    }
+
+    .section-muted {
+      background-color: var(--surface-muted);
+      padding: 4rem 0;
+    }
+
+    @media (min-width: 640px) {
+      .section-muted { padding: 5rem 0; }
+    }
+
+    .page-section {
+      padding: 2.5rem 0 3.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .page-section { padding: 3.25rem 0 4rem; }
+    }
+
+    .page-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .page-header-row {
+        flex-direction: row;
+        align-items: flex-end;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .page-header-lg-row {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
+    .page-title {
+      margin-top: 0.5rem;
+      font-size: 1.875rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    @media (min-width: 640px) {
+      .page-title { font-size: 2.25rem; }
+    }
+
+    .how-grid {
+      margin-top: 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      align-items: stretch;
+    }
+
+    @media (min-width: 1024px) {
+      .how-grid { grid-template-columns: repeat(12, 1fr); }
+      .how-left { grid-column: span 5; }
+      .how-right { grid-column: span 7; display: flex; flex-direction: column; justify-content: center; }
+    }
+
+    .steps-list {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step-row {
+      display: flex;
+      gap: 1.25rem;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step-row:last-child {
+      border-bottom: none;
+    }
+
+    .cards-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .cards-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .cards-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .cards-grid-3 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 1024px) {
+      .cards-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .card {
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background-color: #FFFFFF;
+      padding: 1.5rem;
+      transition: box-shadow 150ms ease, border-color 150ms ease;
+    }
+
+    .card-hover:hover {
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+
+    .card-flex {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .action-strip {
+      margin-top: 3rem;
+      border-radius: 1rem;
+      border: 1px solid #BFDBFE;
+      background-color: rgba(239, 246, 255, 0.85);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .action-strip {
+        flex-direction: row;
+        align-items: center;
+        padding: 2rem;
+      }
+    }
+
+    /* Inputs & Forms */
+    .input-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94A3B8;
+      pointer-events: none;
+    }
+
+    .input, .select, .textarea {
+      width: 100%;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border-strong);
+      background-color: #FFFFFF;
+      padding: 0.7rem 1rem;
+      font-size: 0.875rem;
+      color: var(--text-main);
+      transition: border-color 150ms ease;
+    }
+
+    .input-with-icon {
+      padding-left: 2.5rem;
+    }
+
+    .input:focus, .select:focus, .textarea:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .input-error {
+      border-color: #F87171 !important;
+    }
+
+    .field-error {
+      margin-top: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #DC2626;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .form-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .delivery-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background-color: #FFFFFF;
+      padding: 1rem;
+      text-align: left;
+      transition: border-color 150ms ease, background-color 150ms ease;
+    }
+
+    .delivery-card:hover {
+      border-color: var(--border-strong);
+    }
+
+    .delivery-card.selected {
+      border-color: var(--primary);
+      background-color: rgba(239, 246, 255, 0.6);
+    }
+
+    .chip-btn {
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background-color: var(--surface-muted);
+      padding: 0.3rem 0.625rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: border-color 150ms ease, color 150ms ease;
+    }
+
+    .chip-btn:hover {
+      border-color: #93C5FD;
+      color: var(--primary);
+    }
+
+    .chip-btn.active {
+      border-color: var(--primary);
+      background-color: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    /* KPI Counters */
+    .kpi-grid-3, .kpi-grid-4 {
+      margin-top: 2rem;
+      display: grid;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background-color: #FFFFFF;
+      overflow: hidden;
+    }
+
+    .kpi-grid-3 { grid-template-columns: 1fr; }
+    .kpi-grid-4 { grid-template-columns: repeat(2, 1fr); }
+
+    .kpi-cell {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    @media (min-width: 640px) {
+      .kpi-grid-3 { grid-template-columns: repeat(3, 1fr); }
+      .kpi-grid-4 { grid-template-columns: repeat(4, 1fr); }
+      .kpi-cell { border-bottom: none; border-right: 1px solid var(--border); }
+      .kpi-cell:last-child { border-right: none; }
+    }
+
+    @media (max-width: 639px) {
+      .kpi-grid-3 .kpi-cell:last-child { border-bottom: none; }
+      .kpi-grid-4 .kpi-cell:nth-child(even) { border-left: 1px solid var(--border); }
+      .kpi-grid-4 .kpi-cell:nth-child(n+3) { border-bottom: none; }
+    }
+
+    /* Staff Master-Detail */
+    .staff-grid {
+      margin-top: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      .staff-grid { grid-template-columns: repeat(12, 1fr); }
+      .staff-list { grid-column: span 5; }
+      .staff-inspector { grid-column: span 7; }
+    }
+
+    .queue-item {
+      width: 100%;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background-color: #FFFFFF;
+      padding: 1rem;
+      text-align: left;
+      transition: border-color 150ms ease, background-color 150ms ease;
+    }
+
+    .queue-item:hover {
+      border-color: #93C5FD;
+    }
+
+    .queue-item.selected {
+      border-color: var(--primary);
+      background-color: rgba(239, 246, 255, 0.65);
+    }
+
+    /* Statuses & Timeline */
+    .status-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-blue { color: #1D4ED8; }
+    .status-amber { color: #B45309; }
+    .status-emerald { color: #047857; }
+    .status-red { color: #B91C1C; }
+
+    .timeline-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    @media (min-width: 768px) {
+      .timeline-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .timeline-stage {
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background-color: rgba(248, 250, 252, 0.5);
+      padding: 1rem;
+      opacity: 0.75;
+    }
+
+    .timeline-stage.completed {
+      border-color: #BFDBFE;
+      background-color: rgba(239, 246, 255, 0.55);
+      opacity: 1;
+    }
+
+    .timeline-stage.current {
+      border-color: #2563EB;
+      background-color: #FFFFFF;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+      opacity: 1;
+    }
+
+    /* Alert Boxes */
+    .alert-box {
+      border-radius: 0.75rem;
+      padding: 1rem;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .alert-emerald {
+      border: 1px solid var(--emerald-border);
+      background-color: rgba(236, 253, 245, 0.75);
+      color: #064E3B;
+    }
+
+    .alert-red {
+      border: 1px solid var(--red-border);
+      background-color: rgba(254, 242, 242, 0.75);
+      color: #7F1D1D;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(15, 23, 42, 0.48);
+      backdrop-filter: blur(4px);
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 40rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background-color: #FFFFFF;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+      overflow: hidden;
+    }
+
+    /* Toasts */
+    .toast-stack {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+      width: calc(100% - 2rem);
+      max-width: 24rem;
+    }
+
+    .toast-card {
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background-color: #FFFFFF;
+      padding: 1rem;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.14);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    /* Footer */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      background-color: var(--surface-muted);
+      padding: 3rem 0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .footer-grid { grid-template-columns: repeat(12, 1fr); }
+      .footer-col-brand { grid-column: span 5; }
+      .footer-col-nav { grid-column: span 4; }
+      .footer-col-info { grid-column: span 3; }
+    }
+
+    .footer-bottom {
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+    }
+
+    @media print {
+      .no-print { display: none !important; }
+      .modal-backdrop {
+        position: static;
+        background: none;
+        padding: 0;
+      }
+      .modal-card {
+        box-shadow: none;
+        border: none;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="app-shell"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================================
+      // 1. Демонстрационные данные, справочник справок и константы
+      // =========================================================================
+      var STORAGE_KEYS = {
+        REQUESTS: 'unidoc_requests_v1',
+        NOTIFICATIONS: 'unidoc_notifications_v1',
+        PROFILE: 'unidoc_student_profile_v1',
+        ROLE: 'unidoc_demo_role_v1'
+      };
+
+      var VALID_ROUTES = ['home', 'certificates', 'student', 'order', 'track', 'staff'];
+      var ALL_STATUSES = ['Новая', 'В обработке', 'Готова', 'Отклонена'];
+
+      var CERTIFICATE_TYPES = [
+        {
+          id: 'study_place',
+          title: 'Справка с места учёбы',
+          shortTitle: 'С места учёбы',
+          description: 'Официальное подтверждение статуса действующего студента, формы, курса и сроков обучения для банков, проездных и налоговых вычетов.',
+          processingTime: '1 рабочий день',
+          popular: true,
+          defaultPurpose: 'Для оформления банковской карты или льготного проезда',
+          iconName: 'GraduationCap'
+        },
+        {
+          id: 'social_scholarship',
+          title: 'Справка для социальной стипендии',
+          shortTitle: 'Для соц. стипендии',
+          description: 'Документ установленного образца для органов социальной защиты и стипендиальной комиссии при оформлении государственной поддержки.',
+          processingTime: '2 рабочих дня',
+          popular: true,
+          defaultPurpose: 'Для подачи в органы социальной защиты населения',
+          iconName: 'HeartHandshake'
+        },
+        {
+          id: 'military_office',
+          title: 'Справка для военкомата',
+          shortTitle: 'Для военкомата',
+          description: 'Справка по форме Приложения № 4 с гербовой печатью университета для подтверждения права на отсрочку от призыва.',
+          processingTime: '2–3 рабочих дня',
+          popular: true,
+          defaultPurpose: 'Для предоставления в военный комиссариат',
+          iconName: 'ShieldCheck'
+        },
+        {
+          id: 'study_period',
+          title: 'Справка о периоде обучения',
+          shortTitle: 'О периоде обучения',
+          description: 'Выписка с перечнем освоенных дисциплин, объёмом часов, зачётных единиц и итоговых оценок за пройденные семестры.',
+          processingTime: '3–5 рабочих дней',
+          popular: false,
+          defaultPurpose: 'Для академической мобильности или перевода',
+          iconName: 'BookOpenCheck'
+        },
+        {
+          id: 'on_demand',
+          title: 'Справка по месту требования',
+          shortTitle: 'По месту требования',
+          description: 'Универсальная справка свободного назначения для предъявления работодателю, в визовый центр или иные сторонние организации.',
+          processingTime: '1–2 рабочих дня',
+          popular: true,
+          defaultPurpose: 'По месту требования организации',
+          iconName: 'FileCheck2'
+        }
+      ];
+
+      var CERTIFICATE_MAP = {};
+      CERTIFICATE_TYPES.forEach(function (c) {
+        CERTIFICATE_MAP[c.id] = c;
+      });
+
+      var PICKUP_LOCATION_INFO = {
+        office: 'Главный корпус, кабинет 214 (Студенческий деканат)',
+        hours: 'Пн–Пт, 10:00–17:00 (перерыв 13:00–14:00)',
+        requirements: 'При получении оригинала предъявите студенческий билет или паспорт.'
+      };
+
+      var DEFAULT_STUDENT_PROFILE = {
+        fullName: 'Смирнов Артём Игоревич',
+        group: 'ИВТ-22-04',
+        faculty: 'Институт информационных технологий'
+      };
+
+      var PURPOSE_SUGGESTIONS = [
+        'Для предоставления в банк',
+        'Для оформления льготного проездного',
+        'По месту работы родителей / налоговый вычет',
+        'Для военкомата / органов соцзащиты'
+      ];
+
+      var QUICK_COMMENTS = {
+        'Новая': ['Заявка ожидает распределения в очередь.'],
+        'В обработке': [
+          'Данные проверены, справка передана на подпись.',
+          'Документ формируется специалистом деканата.'
+        ],
+        'Готова': [
+          'Справка подписана. Получение в каб. 214 (пн–пт, 10:00–17:00).',
+          'Электронная копия сформирована и доступна в личном кабинете.'
+        ],
+        'Отклонена': [
+          'Неверно указана учебная группа. Оформите заявку повторно.',
+          'Отсутствуют данные о зачислении на указанный период обучения.'
+        ]
+      };
+
+      function createInitialDemoRequests() {
+        var now = Date.now();
+        var hoursAgo = function (h) {
+          return new Date(now - h * 3600 * 1000).toISOString();
+        };
+
+        return [
+          {
+            id: 'demo-req-1',
+            requestNumber: 'UD-2026-1001',
+            studentName: 'Смирнов Артём Игоревич',
+            studentGroup: 'ИВТ-22-04',
+            certificateTypeId: 'study_place',
+            certificateTitle: 'Справка с места учёбы',
+            purpose: 'Для оформления студенческого проездного билета и карты в банке',
+            deliveryMethod: 'Электронная копия',
+            studentComment: 'Прошу подготовить с указанием даты окончания обучения.',
+            status: 'Новая',
+            staffComment: '',
+            createdAt: hoursAgo(2),
+            updatedAt: hoursAgo(2),
+            history: [
+              {
+                status: 'Новая',
+                timestamp: hoursAgo(2),
+                note: 'Заявка зарегистрирована в системе и ожидает принятия в работу.',
+                actor: 'Студент'
+              }
+            ]
+          },
+          {
+            id: 'demo-req-2',
+            requestNumber: 'UD-2026-1002',
+            studentName: 'Соколова Дарья Алексеевна',
+            studentGroup: 'ЭКМ-21-02',
+            certificateTypeId: 'social_scholarship',
+            certificateTitle: 'Справка для социальной стипендии',
+            purpose: 'Для продления государственной социальной стипендии в осеннем семестре',
+            deliveryMethod: 'Лично в деканате',
+            studentComment: 'Нужен оригинал с синей печатью.',
+            status: 'В обработке',
+            staffComment: 'Данные проверены, справка передана на подпись заместителю декана.',
+            createdAt: hoursAgo(26),
+            updatedAt: hoursAgo(5),
+            history: [
+              {
+                status: 'Новая',
+                timestamp: hoursAgo(26),
+                note: 'Заявка создана студентом.',
+                actor: 'Студент'
+              },
+              {
+                status: 'В обработке',
+                timestamp: hoursAgo(5),
+                note: 'Данные проверены, справка передана на подпись заместителю декана.',
+                actor: 'Деканат'
+              }
+            ]
+          },
+          {
+            id: 'demo-req-3',
+            requestNumber: 'UD-2026-1003',
+            studentName: 'Волков Никита Сергеевич',
+            studentGroup: 'ПРИ-23-01',
+            certificateTypeId: 'military_office',
+            certificateTitle: 'Справка для военкомата',
+            purpose: 'Предоставление в военный комиссариат по месту воинского учёта',
+            deliveryMethod: 'Лично в деканате',
+            studentComment: 'Приложение № 4 для подтверждения очной формы обучения.',
+            status: 'Готова',
+            staffComment: 'Справка подписана и заверена гербовой печатью. Получение в каб. 214 (пн–пт, 10:00–17:00), при себе иметь студенческий билет.',
+            createdAt: hoursAgo(72),
+            updatedAt: hoursAgo(12),
+            history: [
+              {
+                status: 'Новая',
+                timestamp: hoursAgo(72),
+                note: 'Заявка принята электронной приёмной деканата.',
+                actor: 'Студент'
+              },
+              {
+                status: 'В обработке',
+                timestamp: hoursAgo(48),
+                note: 'Справка сформирована и направлена в военно-учётный стол.',
+                actor: 'Деканат'
+              },
+              {
+                status: 'Готова',
+                timestamp: hoursAgo(12),
+                note: 'Обработка заявки завершена. Документ готов к выдаче в каб. 214 (пн–пт, 10:00–17:00).',
+                actor: 'Деканат'
+              }
+            ]
+          }
+        ];
+      }
+
+      function createInitialDemoNotifications() {
+        var now = Date.now();
+        var hoursAgo = function (h) {
+          return new Date(now - h * 3600 * 1000).toISOString();
+        };
+
+        return [
+          {
+            id: 'notif-demo-3',
+            requestNumber: 'UD-2026-1003',
+            title: 'Справка готова к выдаче',
+            message: 'Заявка UD-2026-1003 (Справка для военкомата) переведена в статус «Готова».',
+            status: 'Готова',
+            createdAt: hoursAgo(12),
+            read: false,
+            targetRole: 'student'
+          },
+          {
+            id: 'notif-demo-2',
+            requestNumber: 'UD-2026-1002',
+            title: 'Заявка взята в обработку',
+            message: 'Сотрудник деканата обновил статус заявки UD-2026-1002 на «В обработке».',
+            status: 'В обработке',
+            createdAt: hoursAgo(5),
+            read: false,
+            targetRole: 'student'
+          },
+          {
+            id: 'notif-demo-1',
+            requestNumber: 'UD-2026-1001',
+            title: 'Поступила новая заявка',
+            message: 'Студент Смирнов Артём Игоревич (ИВТ-22-04) оформил заявку UD-2026-1001.',
+            status: 'Новая',
+            createdAt: hoursAgo(2),
+            read: false,
+            targetRole: 'staff'
+          }
+        ];
+      }
+
+      // =========================================================================
+      // 2. Утилиты, экранирование, форматирование дат и работа с localStorage
+      // =========================================================================
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function normalizeSearchText(value) {
+        return String(value || '').toLowerCase().replace(/ё/g, 'е').trim();
+      }
+
+      function formatRussianDate(isoString, includeTime) {
+        if (includeTime === undefined) includeTime = true;
+        try {
+          var date = new Date(isoString);
+          if (isNaN(date.getTime())) return '—';
+          var opts = { day: '2-digit', month: 'long', year: 'numeric' };
+          if (includeTime) {
+            opts.hour = '2-digit';
+            opts.minute = '2-digit';
+          }
+          return new Intl.DateTimeFormat('ru-RU', opts).format(date);
+        } catch (e) {
+          return '—';
+        }
+      }
+
+      function formatShortDate(isoString) {
+        try {
+          var date = new Date(isoString);
+          if (isNaN(date.getTime())) return '—';
+          return new Intl.DateTimeFormat('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }).format(date);
+        } catch (e) {
+          return '—';
+        }
+      }
+
+      function isStorageAvailable() {
+        try {
+          var testKey = '__unidoc_storage_test__';
+          window.localStorage.setItem(testKey, '1');
+          window.localStorage.removeItem(testKey);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function dedupeRequests(items) {
+        var seenIds = new Set();
+        var seenNumbers = new Set();
+        var result = [];
+        for (var i = 0; i < items.length; i++) {
+          var item = items[i];
+          if (!item || typeof item.id !== 'string' || typeof item.requestNumber !== 'string') continue;
+          var numKey = item.requestNumber.trim().toUpperCase();
+          if (seenIds.has(item.id) || seenNumbers.has(numKey)) continue;
+          seenIds.add(item.id);
+          seenNumbers.add(numKey);
+          result.push(item);
+        }
+        return result;
+      }
+
+      function loadRequestsFromStorage() {
+        if (!isStorageAvailable()) {
+          return {
+            data: createInitialDemoRequests(),
+            error: 'Хранилище localStorage недоступно в этом браузере. Изменения будут действовать только до перезагрузки страницы.'
+          };
+        }
+        try {
+          var raw = window.localStorage.getItem(STORAGE_KEYS.REQUESTS);
+          if (!raw) {
+            var initial = createInitialDemoRequests();
+            window.localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(initial));
+            return { data: initial, error: null };
+          }
+          var parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) throw new Error('Invalid format');
+          return { data: dedupeRequests(parsed), error: null };
+        } catch (e) {
+          var fallback = createInitialDemoRequests();
+          try {
+            window.localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(fallback));
+          } catch (err) {}
+          return {
+            data: fallback,
+            error: 'Не удалось прочитать сохранённые заявки — восстановлены демонстрационные данные.'
+          };
+        }
+      }
+
+      function saveRequestsToStorage(requests) {
+        if (!isStorageAvailable()) return 'Хранилище браузера отключено. Невозможно сохранить изменения.';
+        try {
+          window.localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(requests));
+          return null;
+        } catch (e) {
+          return 'Ошибка сохранения данных в localStorage (возможно, превышен лимит памяти браузера).';
+        }
+      }
+
+      function loadNotificationsFromStorage() {
+        if (!isStorageAvailable()) return createInitialDemoNotifications();
+        try {
+          var raw = window.localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
+          if (!raw) {
+            var initial = createInitialDemoNotifications();
+            window.localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(initial));
+            return initial;
+          }
+          var parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : createInitialDemoNotifications();
+        } catch (e) {
+          return createInitialDemoNotifications();
+        }
+      }
+
+      function saveNotificationsToStorage(notifications) {
+        if (!isStorageAvailable()) return;
+        try {
+          window.localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
+        } catch (e) {}
+      }
+
+      function loadProfileFromStorage() {
+        if (!isStorageAvailable()) return Object.assign({}, DEFAULT_STUDENT_PROFILE);
+        try {
+          var raw = window.localStorage.getItem(STORAGE_KEYS.PROFILE);
+          if (!raw) {
+            window.localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(DEFAULT_STUDENT_PROFILE));
+            return Object.assign({}, DEFAULT_STUDENT_PROFILE);
+          }
+          var parsed = JSON.parse(raw);
+          if (!parsed || !parsed.fullName || !parsed.group) return Object.assign({}, DEFAULT_STUDENT_PROFILE);
+          return {
+            fullName: parsed.fullName,
+            group: parsed.group,
+            faculty: parsed.faculty || DEFAULT_STUDENT_PROFILE.faculty
+          };
+        } catch (e) {
+          return Object.assign({}, DEFAULT_STUDENT_PROFILE);
+        }
+      }
+
+      function saveProfileToStorage(profile) {
+        if (!isStorageAvailable()) return 'Хранилище браузера недоступно.';
+        try {
+          window.localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile));
+          return null;
+        } catch (e) {
+          return 'Не удалось сохранить профиль в localStorage.';
+        }
+      }
+
+      function loadRoleFromStorage() {
+        if (!isStorageAvailable()) return 'student';
+        try {
+          return window.localStorage.getItem(STORAGE_KEYS.ROLE) === 'staff' ? 'staff' : 'student';
+        } catch (e) {
+          return 'student';
+        }
+      }
+
+      function saveRoleToStorage(role) {
+        if (!isStorageAvailable()) return;
+        try {
+          window.localStorage.setItem(STORAGE_KEYS.ROLE, role);
+        } catch (e) {}
+      }
+
+      function generateUniqueRequestNumber(existingRequests) {
+        var year = new Date().getFullYear();
+        var existingSet = new Set(existingRequests.map(function (r) { return r.requestNumber.toUpperCase(); }));
+        for (var attempt = 0; attempt < 100; attempt++) {
+          var num = Math.floor(1004 + Math.random() * 8995);
+          var candidate = 'UD-' + year + '-' + num;
+          if (!existingSet.has(candidate)) return candidate;
+        }
+        return 'UD-' + year + '-' + String(Date.now()).slice(-5);
+      }
+
+      // =========================================================================
+      // 3. Генератор PDF-документа (Canvas A4 -> бинарный PDF 1.4 без библиотек)
+      // =========================================================================
+      function wrapCanvasText(ctx, text, maxWidth) {
+        var words = String(text || '').split(/\s+/).filter(Boolean);
+        var lines = [];
+        var currentLine = '';
+        for (var i = 0; i < words.length; i++) {
+          var word = words[i];
+          var testLine = currentLine ? currentLine + ' ' + word : word;
+          if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+            lines.push(currentLine);
+            currentLine = word;
+          } else {
+            currentLine = testLine;
+          }
+        }
+        if (currentLine) lines.push(currentLine);
+        return lines;
+      }
+
+      function buildPdfFromJpeg(jpegBytes, imgWidth, imgHeight) {
+        var encoder = new TextEncoder();
+        var pageWidth = 595.28;
+        var pageHeight = 841.89;
+        var contentStreamStr = 'q\n' + pageWidth.toFixed(2) + ' 0 0 ' + pageHeight.toFixed(2) + ' 0 0 cm\n/Im0 Do\nQ\n';
+        var contentStreamBytes = encoder.encode(contentStreamStr);
+        var chunks = [];
+        var offsets = [];
+        var currentOffset = 0;
+
+        function pushBytes(bytes) {
+          chunks.push(bytes);
+          currentOffset += bytes.length;
+        }
+        function pushStr(str) {
+          pushBytes(encoder.encode(str));
+        }
+
+        pushStr('%PDF-1.4\n%\xFF\xFF\xFF\xFF\n');
+
+        offsets.push(currentOffset);
+        pushStr('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+
+        offsets.push(currentOffset);
+        pushStr('2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n');
+
+        offsets.push(currentOffset);
+        pushStr('3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + pageWidth.toFixed(2) + ' ' + pageHeight.toFixed(2) + '] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>\nendobj\n');
+
+        offsets.push(currentOffset);
+        pushStr('4 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + imgWidth + ' /Height ' + imgHeight + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpegBytes.length + ' >>\nstream\n');
+        pushBytes(jpegBytes);
+        pushStr('\nendstream\nendobj\n');
+
+        offsets.push(currentOffset);
+        pushStr('5 0 obj\n<< /Length ' + contentStreamBytes.length + ' >>\nstream\n');
+        pushBytes(contentStreamBytes);
+        pushStr('endstream\nendobj\n');
+
+        var xrefOffset = currentOffset;
+        pushStr('xref\n0 ' + (offsets.length + 1) + '\n');
+        pushStr('0000000000 65535 f \n');
+        for (var i = 0; i < offsets.length; i++) {
+          pushStr(String(offsets[i]).padStart(10, '0') + ' 00000 n \n');
+        }
+        pushStr('trailer\n<< /Size ' + (offsets.length + 1) + ' /Root 1 0 R >>\nstartxref\n' + xrefOffset + '\n%%EOF');
+
+        return new Blob(chunks, { type: 'application/pdf' });
+      }
+
+      function downloadCertificatePdf(request) {
+        var width = 1240;
+        var height = 1754;
+        var canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Canvas не поддерживается браузером');
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.strokeStyle = '#CBD5E1';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(64, 64, width - 128, height - 128);
+
+        ctx.fillStyle = '#1D4ED8';
+        ctx.fillRect(64, 64, width - 128, 16);
+
+        ctx.fillStyle = '#1D4ED8';
+        ctx.fillRect(112, 128, 64, 64);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 34px "Plus Jakarta Sans", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('U', 144, 161);
+
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = '#0F172A';
+        ctx.font = 'bold 28px "Plus Jakarta Sans", Arial, sans-serif';
+        ctx.fillText('UniDoc · Электронный деканат университета', 196, 156);
+
+        ctx.fillStyle = '#475569';
+        ctx.font = '20px "Manrope", Arial, sans-serif';
+        ctx.fillText('Демонстрационная электронная справка (учебный прототип)', 196, 188);
+
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(112, 232);
+        ctx.lineTo(width - 112, 232);
+        ctx.stroke();
+
+        var formedDate = formatRussianDate(request.updatedAt, true);
+        ctx.fillStyle = '#64748B';
+        ctx.font = '18px "Manrope", Arial, sans-serif';
+        ctx.fillText('Регистрационный номер заявки', 112, 286);
+        ctx.fillText('Дата формирования документа', width - 480, 286);
+
+        ctx.fillStyle = '#1D4ED8';
+        ctx.font = 'bold 26px "JetBrains Mono", monospace';
+        ctx.fillText(request.requestNumber, 112, 324);
+
+        ctx.fillStyle = '#0F172A';
+        ctx.font = '600 22px "Manrope", Arial, sans-serif';
+        ctx.fillText(formedDate, width - 480, 324);
+
+        ctx.fillStyle = '#0F172A';
+        ctx.font = 'bold 40px "Plus Jakarta Sans", Arial, sans-serif';
+        var titleLines = wrapCanvasText(ctx, request.certificateTitle.toUpperCase(), width - 224);
+        var y = 430;
+        titleLines.forEach(function (line) {
+          ctx.fillText(line, 112, y);
+          y += 52;
+        });
+
+        y += 28;
+        var boxTop = y;
+        ctx.fillStyle = '#F8FAFC';
+        ctx.fillRect(112, boxTop, width - 224, 340);
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(112, boxTop, width - 224, 340);
+
+        function drawField(label, value, rowY) {
+          ctx.fillStyle = '#64748B';
+          ctx.font = '18px "Manrope", Arial, sans-serif';
+          ctx.fillText(label, 148, rowY);
+          ctx.fillStyle = '#0F172A';
+          ctx.font = 'bold 24px "Manrope", Arial, sans-serif';
+          ctx.fillText(value, 148, rowY + 34);
+        }
+
+        drawField('ФИО студента', request.studentName, boxTop + 56);
+        drawField('Учебная группа', request.studentGroup, boxTop + 148);
+        drawField('Способ получения', request.deliveryMethod, boxTop + 240);
+
+        ctx.fillStyle = '#64748B';
+        ctx.font = '18px "Manrope", Arial, sans-serif';
+        ctx.fillText('Дата подачи заявки', 680, boxTop + 56);
+        ctx.fillStyle = '#0F172A';
+        ctx.font = '600 22px "Manrope", Arial, sans-serif';
+        ctx.fillText(formatRussianDate(request.createdAt, false), 680, boxTop + 90);
+
+        ctx.fillStyle = '#64748B';
+        ctx.font = '18px "Manrope", Arial, sans-serif';
+        ctx.fillText('Статус в системе', 680, boxTop + 148);
+        ctx.fillStyle = '#047857';
+        ctx.font = 'bold 24px "Manrope", Arial, sans-serif';
+        ctx.fillText('Справка готова', 680, boxTop + 182);
+
+        y = boxTop + 410;
+        ctx.fillStyle = '#1E293B';
+        ctx.font = '24px "Manrope", Arial, sans-serif';
+        var mainParagraph = 'Настоящим подтверждается, что ' + request.studentName + ' (учебная группа ' + request.studentGroup + ') числится в контингенте обучающихся университета. Документ сформирован по электронной заявке № ' + request.requestNumber + '.';
+        wrapCanvasText(ctx, mainParagraph, width - 224).forEach(function (line) {
+          ctx.fillText(line, 112, y);
+          y += 38;
+        });
+
+        y += 28;
+        ctx.fillStyle = '#475569';
+        ctx.font = '600 20px "Manrope", Arial, sans-serif';
+        ctx.fillText('Цель получения документа:', 112, y);
+        y += 34;
+        ctx.fillStyle = '#0F172A';
+        ctx.font = '22px "Manrope", Arial, sans-serif';
+        wrapCanvasText(ctx, request.purpose, width - 224).forEach(function (line) {
+          ctx.fillText(line, 112, y);
+          y += 34;
+        });
+
+        if (request.staffComment) {
+          y += 28;
+          ctx.fillStyle = '#475569';
+          ctx.font = '600 20px "Manrope", Arial, sans-serif';
+          ctx.fillText('Комментарий сотрудника деканата:', 112, y);
+          y += 34;
+          ctx.fillStyle = '#0F172A';
+          ctx.font = '22px "Manrope", Arial, sans-serif';
+          wrapCanvasText(ctx, request.staffComment, width - 224).forEach(function (line) {
+            ctx.fillText(line, 112, y);
+            y += 34;
+          });
+        }
+
+        var stampY = height - 340;
+        ctx.strokeStyle = '#1D4ED8';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(112, stampY, 540, 150);
+        ctx.fillStyle = '#EFF6FF';
+        ctx.fillRect(114, stampY + 2, 536, 146);
+
+        ctx.fillStyle = '#1D4ED8';
+        ctx.font = 'bold 20px "Plus Jakarta Sans", Arial, sans-serif';
+        ctx.fillText('ДОКУМЕНТ СФОРМИРОВАН В UNIDOC', 142, stampY + 46);
+
+        ctx.fillStyle = '#1E3A8A';
+        ctx.font = '18px "JetBrains Mono", monospace';
+        ctx.fillText('Заявка: ' + request.requestNumber, 142, stampY + 84);
+        ctx.fillText('Дата: ' + formedDate, 142, stampY + 116);
+
+        ctx.fillStyle = '#64748B';
+        ctx.font = '17px "Manrope", Arial, sans-serif';
+        ctx.fillText('Учебный демонстрационный PDF-документ. Не является официальным бланком государственного образца.', 112, height - 110);
+
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        var base64 = dataUrl.split(',')[1];
+        var binaryStr = atob(base64);
+        var jpegBytes = new Uint8Array(binaryStr.length);
+        for (var i = 0; i < binaryStr.length; i++) {
+          jpegBytes[i] = binaryStr.charCodeAt(i);
+        }
+
+        var pdfBlob = buildPdfFromJpeg(jpegBytes, width, height);
+        var url = URL.createObjectURL(pdfBlob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'UniDoc_' + request.requestNumber + '.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      }
+
+      // =========================================================================
+      // 4. SVG-иконки и встроенные векторные иллюстрации (работают автономно)
+      // =========================================================================
+      function svgIcon(name, size) {
+        var s = size || 16;
+        var common = 'width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
+        var paths = {
+          ArrowRight: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+          Search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+          Clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+          FileText: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+          BellRing: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 2C2.8 3.7 2 5.7 2 8"/><path d="M22 8c0-2.3-.8-4.3-2-6"/>',
+          Laptop: '<path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>',
+          GraduationCap: '<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
+          HeartHandshake: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/><path d="m18 15-2-2"/><path d="m15 18-2-2"/>',
+          ShieldCheck: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+          BookOpenCheck: '<path d="M12 21V7"/><path d="m16 12 2 2 4-4"/><path d="M22 6V4a1 1 0 0 0-1-1h-5a4 4 0 0 0-4 4 4 4 0 0 0-4-4H3a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h6a3 3 0 0 1 3 3 3 3 0 0 1 3-3h6a1 1 0 0 0 1-1v-1.3"/>',
+          FileCheck2: '<path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m3 15 2 2 4-4"/>',
+          Menu: '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+          X: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+          UserRound: '<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
+          Shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+          Bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+          CheckCheck: '<path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/>',
+          RotateCcw: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+          CheckCircle2: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+          Clock3: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16.5 12"/>',
+          FilePlus2: '<path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M3 15h6"/><path d="M6 12v6"/>',
+          XCircle: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+          Download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+          Eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+          Printer: '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
+          MapPin: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+          ChevronDown: '<path d="m6 9 6 6 6-6"/>',
+          ChevronUp: '<path d="m18 15-6-6-6 6"/>',
+          Edit3: '<path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/>',
+          FilePlus: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 18v-6"/>',
+          Copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+          Check: '<path d="M20 6 9 17l-5-5"/>',
+          AlertCircle: '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+          AlertTriangle: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+          Info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+          Building2: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+          FileDown: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/>',
+          ClipboardList: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>'
+        };
+        return '<svg ' + common + '>' + (paths[name] || '') + '</svg>';
+      }
+
+      function heroIllustrationSvg() {
+        return '<svg viewBox="0 0 640 460" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Современный студенческий сервисный центр университета">' +
+          '<defs>' +
+            '<linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#EFF6FF"/><stop offset="100%" stop-color="#DBEAFE"/></linearGradient>' +
+            '<linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/><stop offset="100%" stop-color="#F8FAFC" stop-opacity="0.9"/></linearGradient>' +
+          '</defs>' +
+          '<rect width="640" height="460" fill="url(#sky)"/>' +
+          '<circle cx="530" cy="85" r="95" fill="#BFDBFE" opacity="0.55"/>' +
+          '<circle cx="110" cy="390" r="130" fill="#93C5FD" opacity="0.22"/>' +
+          '<path d="M70 370 H570" stroke="#93C5FD" stroke-width="2"/>' +
+          '<rect x="96" y="135" width="230" height="235" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>' +
+          '<rect x="116" y="112" width="190" height="24" rx="4" fill="#1D4ED8"/>' +
+          '<rect x="132" y="168" width="42" height="60" rx="4" fill="#EFF6FF" stroke="#BFDBFE"/>' +
+          '<rect x="190" y="168" width="42" height="60" rx="4" fill="#EFF6FF" stroke="#BFDBFE"/>' +
+          '<rect x="248" y="168" width="42" height="60" rx="4" fill="#EFF6FF" stroke="#BFDBFE"/>' +
+          '<rect x="132" y="246" width="42" height="60" rx="4" fill="#EFF6FF" stroke="#BFDBFE"/>' +
+          '<rect x="190" y="246" width="42" height="60" rx="4" fill="#EFF6FF" stroke="#BFDBFE"/>' +
+          '<rect x="248" y="246" width="42" height="60" rx="4" fill="#EFF6FF" stroke="#BFDBFE"/>' +
+          '<rect x="184" y="324" width="54" height="46" rx="4" fill="#1E3A8A"/>' +
+          '<g transform="translate(278, 86)">' +
+            '<rect x="0" y="0" width="286" height="296" rx="18" fill="url(#glass)" stroke="#CBD5E1" stroke-width="2"/>' +
+            '<rect x="0" y="0" width="286" height="10" rx="5" fill="#1D4ED8"/>' +
+            '<rect x="24" y="28" width="36" height="36" rx="8" fill="#1D4ED8"/>' +
+            '<text x="42" y="52" text-anchor="middle" fill="#FFFFFF" font-family="Plus Jakarta Sans, sans-serif" font-weight="800" font-size="18">U</text>' +
+            '<text x="72" y="43" fill="#0F172A" font-family="Plus Jakarta Sans, sans-serif" font-weight="700" font-size="15">UniDoc</text>' +
+            '<text x="72" y="60" fill="#64748B" font-family="Manrope, sans-serif" font-size="11">Электронная приёмная</text>' +
+            '<line x1="24" y1="82" x2="262" y2="82" stroke="#E2E8F0" stroke-width="1.5"/>' +
+            '<rect x="24" y="98" width="238" height="58" rx="10" fill="#F8FAFC" stroke="#E2E8F0"/>' +
+            '<text x="38" y="120" fill="#1D4ED8" font-family="JetBrains Mono, monospace" font-weight="600" font-size="12">UD-2026-1003</text>' +
+            '<text x="38" y="140" fill="#0F172A" font-family="Manrope, sans-serif" font-weight="700" font-size="13">Справка с места учёбы</text>' +
+            '<rect x="24" y="172" width="238" height="44" rx="10" fill="#ECFDF5" stroke="#A7F3D0"/>' +
+            '<circle cx="44" cy="194" r="9" fill="#047857"/>' +
+            '<path d="M40 194l3 3 5-5" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+            '<text x="62" y="198" fill="#065F46" font-family="Manrope, sans-serif" font-weight="700" font-size="12">Справка готова · PDF доступен</text>' +
+            '<rect x="24" y="232" width="136" height="36" rx="8" fill="#1D4ED8"/>' +
+            '<text x="92" y="254" text-anchor="middle" fill="#FFFFFF" font-family="Manrope, sans-serif" font-weight="700" font-size="12">Скачать PDF</text>' +
+            '<rect x="170" y="232" width="92" height="36" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/>' +
+            '<text x="216" y="254" text-anchor="middle" fill="#0F172A" font-family="Manrope, sans-serif" font-weight="600" font-size="12">Статус</text>' +
+          '</g>' +
+        '</svg>';
+      }
+
+      function deskIllustrationSvg() {
+        return '<svg viewBox="0 0 520 420" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Оформление университетской справки">' +
+          '<defs><linearGradient id="deskbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F8FAFC"/><stop offset="100%" stop-color="#EFF6FF"/></linearGradient></defs>' +
+          '<rect width="520" height="420" fill="url(#deskbg)"/>' +
+          '<rect x="76" y="54" width="320" height="312" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>' +
+          '<rect x="76" y="54" width="320" height="12" rx="6" fill="#1D4ED8"/>' +
+          '<rect x="108" y="92" width="140" height="14" rx="4" fill="#0F172A"/>' +
+          '<rect x="108" y="118" width="210" height="10" rx="4" fill="#94A3B8"/>' +
+          '<rect x="108" y="152" width="256" height="86" rx="10" fill="#F8FAFC" stroke="#E2E8F0"/>' +
+          '<rect x="126" y="172" width="110" height="10" rx="4" fill="#CBD5E1"/>' +
+          '<rect x="126" y="194" width="190" height="12" rx="4" fill="#334155"/>' +
+          '<rect x="126" y="216" width="150" height="8" rx="4" fill="#94A3B8"/>' +
+          '<rect x="108" y="260" width="256" height="10" rx="4" fill="#CBD5E1"/>' +
+          '<rect x="108" y="282" width="220" height="10" rx="4" fill="#CBD5E1"/>' +
+          '<circle cx="322" cy="324" r="30" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="2.5" stroke-dasharray="4 3"/>' +
+          '<text x="322" y="328" text-anchor="middle" fill="#1D4ED8" font-family="Plus Jakarta Sans, sans-serif" font-weight="800" font-size="11">UNIDOC</text>' +
+          '<rect x="332" y="118" width="124" height="86" rx="14" fill="#1D4ED8" opacity="0.96"/>' +
+          '<text x="352" y="148" fill="#BFDBFE" font-family="Manrope, sans-serif" font-size="11" font-weight="600">Этап 01 → 03</text>' +
+          '<text x="352" y="174" fill="#FFFFFF" font-family="Plus Jakarta Sans, sans-serif" font-size="15" font-weight="700">Онлайн-заявка</text>' +
+          '<text x="352" y="192" fill="#DBEAFE" font-family="Manrope, sans-serif" font-size="11">Без очередей</text>' +
+        '</svg>';
+      }
+
+      function avatarSvg(type) {
+        if (type === 'staff') {
+          return '<svg viewBox="0 0 48 48" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+            '<rect width="48" height="48" rx="24" fill="#EFF6FF"/>' +
+            '<circle cx="24" cy="18" r="7" fill="#1D4ED8"/>' +
+            '<path d="M10 41c2-8 7.5-12 14-12s12 4 14 12" fill="#1E40AF"/>' +
+          '</svg>';
+        }
+        return '<svg viewBox="0 0 48 48" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          '<rect width="48" height="48" rx="24" fill="#DBEAFE"/>' +
+          '<circle cx="24" cy="18" r="7" fill="#1D4ED8"/>' +
+          '<path d="M10 41c2-8 7.5-12 14-12s12 4 14 12" fill="#2563EB"/>' +
+        '</svg>';
+      }
+
+      function getStatusMeta(status) {
+        switch (status) {
+          case 'Новая':
+            return { label: 'Новая', cls: 'status-blue', icon: 'FilePlus2' };
+          case 'В обработке':
+            return { label: 'В обработке', cls: 'status-amber', icon: 'Clock3' };
+          case 'Готова':
+            return { label: 'Готова', cls: 'status-emerald', icon: 'CheckCircle2' };
+          case 'Отклонена':
+          default:
+            return { label: 'Отклонена', cls: 'status-red', icon: 'XCircle' };
+        }
+      }
+
+      function renderStatusInline(status) {
+        var meta = getStatusMeta(status);
+        return '<span class="status-inline ' + meta.cls + '">' + svgIcon(meta.icon, 16) + '<span>' + escapeHtml(meta.label) + '</span></span>';
+      }
+
+      // =========================================================================
+      // 5. Состояние приложения (State)
+      // =========================================================================
+      function parseRouteFromHash() {
+        try {
+          var rawHash = window.location.hash.replace(/^#/, '');
+          if (!rawHash) return { route: 'home', trackNumber: '' };
+          var parts = rawHash.split('?');
+          var route = VALID_ROUTES.indexOf(parts[0]) !== -1 ? parts[0] : 'home';
+          var params = new URLSearchParams(parts[1] || '');
+          return { route: route, trackNumber: params.get('num') || '' };
+        } catch (e) {
+          return { route: 'home', trackNumber: '' };
+        }
+      }
+
+      var initialHash = parseRouteFromHash();
+      var initialReqState = loadRequestsFromStorage();
+
+      var state = {
+        route: initialHash.route,
+        role: loadRoleFromStorage(),
+        requests: initialReqState.data,
+        storageError: initialReqState.error,
+        studentProfile: loadProfileFromStorage(),
+        notifications: loadNotificationsFromStorage(),
+        toasts: [],
+
+        // UI flags
+        mobileMenuOpen: false,
+        notifOpen: false,
+        isAuthModalOpen: false,
+        previewRequest: null,
+
+        // Page-specific state
+        certSearchQuery: '',
+
+        // Order form state
+        orderName: '',
+        orderGroup: '',
+        orderCertId: 'study_place',
+        orderPurpose: CERTIFICATE_MAP['study_place'].defaultPurpose,
+        orderDelivery: 'Электронная копия',
+        orderComment: '',
+        orderFieldErrors: {},
+        orderSubmitError: null,
+        orderCreatedRequest: null,
+        orderCopied: false,
+
+        // Track page state
+        trackInput: initialHash.trackNumber || '',
+        trackSearched: initialHash.trackNumber || '',
+        trackError: null,
+
+        // Student dashboard state
+        studentScope: 'all',
+        studentStatusFilter: 'Все',
+        studentSearch: '',
+        studentExpandedId: null,
+        editingProfile: false,
+        draftProfileName: '',
+        draftProfileGroup: '',
+        profileError: null,
+
+        // Staff dashboard state
+        staffSearch: '',
+        staffStatusFilter: 'Все',
+        staffSelectedId: initialReqState.data[0] ? initialReqState.data[0].id : '',
+        staffEditStatus: initialReqState.data[0] ? initialReqState.data[0].status : 'Новая',
+        staffEditComment: initialReqState.data[0] ? initialReqState.data[0].staffComment : '',
+        staffSaveError: null,
+        staffSaveSuccess: null,
+
+        // Auth modal draft
+        authName: '',
+        authGroup: '',
+        authError: null
+      };
+
+      state.orderName = state.studentProfile.fullName;
+      state.orderGroup = state.studentProfile.group;
+      state.draftProfileName = state.studentProfile.fullName;
+      state.draftProfileGroup = state.studentProfile.group;
+      state.authName = state.studentProfile.fullName;
+      state.authGroup = state.studentProfile.group;
+
+      function writeHashForRoute(route, trackNumber) {
+        try {
+          var nextHash = route === 'track' && trackNumber
+            ? '#track?num=' + encodeURIComponent(trackNumber)
+            : '#' + route;
+          if (window.location.hash !== nextHash) {
+            window.history.replaceState(null, '', nextHash);
+          }
+        } catch (e) {}
+      }
+
+      function pushToast(toast) {
+        var id = 'toast-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+        state.toasts = [Object.assign({ id: id }, toast)].concat(state.toasts).slice(0, 4);
+        renderToastsOnly();
+        window.setTimeout(function () {
+          dismissToast(id);
+        }, 6500);
+      }
+
+      function dismissToast(id) {
+        state.toasts = state.toasts.filter(function (t) { return t.id !== id; });
+        renderToastsOnly();
+      }
+
+      function appendNotification(notif) {
+        var entry = Object.assign({}, notif, {
+          id: 'notif-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+          createdAt: new Date().toISOString(),
+          read: false
+        });
+        state.notifications = [entry].concat(state.notifications).slice(0, 40);
+        saveNotificationsToStorage(state.notifications);
+      }
+
+      function navigate(to, options) {
+        options = options || {};
+        if (options.certificateId && CERTIFICATE_MAP[options.certificateId]) {
+          state.orderCertId = options.certificateId;
+          if (!state.orderCreatedRequest) {
+            state.orderPurpose = CERTIFICATE_MAP[options.certificateId].defaultPurpose;
+          }
+        }
+        if (options.trackNumber !== undefined) {
+          state.trackInput = options.trackNumber;
+          state.trackSearched = options.trackNumber;
+          state.trackError = null;
+        }
+        state.route = to;
+        state.mobileMenuOpen = false;
+        state.notifOpen = false;
+        writeHashForRoute(to, options.trackNumber);
+        render();
+
+        if (options.scrollToId) {
+          window.setTimeout(function () {
+            var el = document.getElementById(options.scrollToId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 60);
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+
+      function setRole(nextRole, navigateToDashboard) {
+        state.role = nextRole;
+        saveRoleToStorage(nextRole);
+        if (navigateToDashboard) {
+          navigate(nextRole === 'staff' ? 'staff' : 'student');
+        } else if (state.route === 'student' && nextRole === 'staff') {
+          navigate('staff');
+        } else if (state.route === 'staff' && nextRole === 'student') {
+          navigate('student');
+        } else {
+          render();
+        }
+        pushToast({
+          title: nextRole === 'staff' ? 'Режим сотрудника деканата' : 'Режим студента',
+          message: nextRole === 'staff'
+            ? 'Открыта панель управления заявками деканата.'
+            : 'Вы переключились в личный кабинет студента.',
+          variant: 'info'
+        });
+      }
+
+      function updateStudentProfile(profile) {
+        var cleaned = {
+          fullName: profile.fullName.trim(),
+          group: profile.group.trim().toUpperCase(),
+          faculty: (profile.faculty || DEFAULT_STUDENT_PROFILE.faculty).trim()
+        };
+        state.studentProfile = cleaned;
+        state.orderName = cleaned.fullName;
+        state.orderGroup = cleaned.group;
+        var err = saveProfileToStorage(cleaned);
+        if (err) {
+          state.storageError = err;
+        } else {
+          pushToast({
+            title: 'Профиль обновлён',
+            message: cleaned.fullName + ' · ' + cleaned.group,
+            variant: 'success'
+          });
+        }
+      }
+
+      function createRequest(input) {
+        var trimmedName = input.studentName.trim();
+        var trimmedGroup = input.studentGroup.trim().toUpperCase();
+        var trimmedPurpose = input.purpose.trim();
+
+        if (trimmedName.length < 3) return { ok: false, error: 'Укажите корректное ФИО (минимум 3 символа).' };
+        if (trimmedGroup.length < 2) return { ok: false, error: 'Укажите номер учебной группы.' };
+        if (trimmedPurpose.length < 4) return { ok: false, error: 'Укажите цель получения справки.' };
+
+        var cert = CERTIFICATE_MAP[input.certificateTypeId];
+        if (!cert) return { ok: false, error: 'Выбран некорректный тип справки.' };
+
+        var nowMs = Date.now();
+        var nowIso = new Date(nowMs).toISOString();
+        var requestNumber = generateUniqueRequestNumber(state.requests);
+
+        var newRequest = {
+          id: 'req-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+          requestNumber: requestNumber,
+          studentName: trimmedName,
+          studentGroup: trimmedGroup,
+          certificateTypeId: input.certificateTypeId,
+          certificateTitle: cert.title,
+          purpose: trimmedPurpose,
+          deliveryMethod: input.deliveryMethod,
+          studentComment: input.studentComment.trim(),
+          status: 'Новая',
+          staffComment: '',
+          createdAt: nowIso,
+          updatedAt: nowIso,
+          history: [
+            {
+              status: 'Новая',
+              timestamp: nowIso,
+              note: 'Заявка ' + requestNumber + ' создана и отправлена в деканат.',
+              actor: 'Студент'
+            }
+          ]
+        };
+
+        var nextRequests = [newRequest].concat(state.requests);
+        var saveErr = saveRequestsToStorage(nextRequests);
+        if (saveErr) {
+          state.storageError = saveErr;
+          return { ok: false, error: saveErr };
+        }
+
+        state.requests = nextRequests;
+        if (trimmedName !== state.studentProfile.fullName || trimmedGroup !== state.studentProfile.group) {
+          var updatedProfile = Object.assign({}, state.studentProfile, {
+            fullName: trimmedName,
+            group: trimmedGroup
+          });
+          state.studentProfile = updatedProfile;
+          saveProfileToStorage(updatedProfile);
+        }
+
+        appendNotification({
+          requestNumber: requestNumber,
+          title: 'Новая заявка зарегистрирована',
+          message: 'Заявка ' + requestNumber + ' (' + cert.shortTitle + ') принята и ожидает обработки в деканате.',
+          status: 'Новая',
+          targetRole: 'all'
+        });
+
+        pushToast({
+          title: 'Заявка ' + requestNumber + ' отправлена',
+          message: cert.title + ' · статус «Новая»',
+          variant: 'success',
+          requestNumber: requestNumber
+        });
+
+        return { ok: true, request: newRequest };
+      }
+
+      function updateRequestStatus(input) {
+        var target = state.requests.find(function (r) { return r.id === input.id; });
+        if (!target) return { ok: false, error: 'Заявка не найдена в хранилище.' };
+
+        var trimmedComment = input.staffComment.trim();
+        if (input.status === 'Отклонена' && trimmedComment.length < 5) {
+          return {
+            ok: false,
+            error: 'При отклонении заявки обязательно укажите причину в комментарии сотрудника.'
+          };
+        }
+
+        var nowIso = new Date().toISOString();
+        var statusChanged = target.status !== input.status;
+        var defaultNoteByStatus = {
+          'Новая': 'Заявка возвращена в статус «Новая».',
+          'В обработке': 'Сотрудник деканата взял заявку в работу.',
+          'Готова': target.deliveryMethod === 'Электронная копия'
+            ? 'Обработка заявки завершена. Электронная справка PDF сформирована и доступна для скачивания.'
+            : 'Обработка заявки завершена. Бумажный оригинал подписан и готов к выдаче в каб. 214.',
+          'Отклонена': trimmedComment || 'Заявка отклонена сотрудником деканата.'
+        };
+
+        var historyNote = input.status === 'Готова' && trimmedComment
+          ? (/^обработка/i.test(trimmedComment) ? trimmedComment : 'Обработка заявки завершена. ' + trimmedComment)
+          : (trimmedComment || defaultNoteByStatus[input.status]);
+
+        var nextHistory = statusChanged
+          ? target.history.concat([{
+              status: input.status,
+              timestamp: nowIso,
+              note: historyNote,
+              actor: 'Деканат'
+            }])
+          : target.history.map(function (item, idx) {
+              return idx === target.history.length - 1
+                ? Object.assign({}, item, { note: historyNote, timestamp: nowIso })
+                : item;
+            });
+
+        var updated = Object.assign({}, target, {
+          status: input.status,
+          staffComment: trimmedComment,
+          updatedAt: nowIso,
+          history: nextHistory
+        });
+
+        var nextRequests = state.requests.map(function (r) { return r.id === target.id ? updated : r; });
+        var saveErr = saveRequestsToStorage(nextRequests);
+        if (saveErr) {
+          state.storageError = saveErr;
+          return { ok: false, error: saveErr };
+        }
+
+        state.requests = nextRequests;
+
+        var notifTitle = input.status === 'Готова'
+          ? 'Справка готова!'
+          : input.status === 'Отклонена'
+            ? 'Заявка отклонена'
+            : input.status === 'В обработке'
+              ? 'Заявка в обработке'
+              : 'Заявка обновлена';
+
+        appendNotification({
+          requestNumber: updated.requestNumber,
+          title: notifTitle + ' · ' + updated.requestNumber,
+          message: updated.certificateTitle + ' (' + updated.studentName + ') — статус: «' + updated.status + '».' + (trimmedComment ? ' Комментарий: ' + trimmedComment : ''),
+          status: updated.status,
+          targetRole: 'student'
+        });
+
+        pushToast({
+          title: notifTitle + ' (' + updated.requestNumber + ')',
+          message: 'Статус обновлён на «' + updated.status + '». Изменение сразу доступно студенту и в поиске.',
+          variant: updated.status === 'Готова' ? 'success' : updated.status === 'Отклонена' ? 'error' : 'info',
+          requestNumber: updated.requestNumber
+        });
+
+        return { ok: true, request: updated };
+      }
+
+      function resetDemoData() {
+        var requests = createInitialDemoRequests();
+        var notifications = createInitialDemoNotifications();
+        var profile = Object.assign({}, DEFAULT_STUDENT_PROFILE);
+
+        if (isStorageAvailable()) {
+          try {
+            window.localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(requests));
+            window.localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
+            window.localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile));
+          } catch (e) {
+            state.storageError = 'Не удалось записать сброшенные данные в localStorage.';
+          }
+        } else {
+          state.storageError = 'localStorage недоступен, данные сброшены только в текущей сессии.';
+        }
+
+        state.requests = requests;
+        state.notifications = notifications;
+        state.studentProfile = profile;
+        state.orderName = profile.fullName;
+        state.orderGroup = profile.group;
+        state.staffSelectedId = requests[0].id;
+        state.staffEditStatus = requests[0].status;
+        state.staffEditComment = requests[0].staffComment;
+        state.staffSaveSuccess = null;
+        state.staffSaveError = null;
+        render();
+
+        pushToast({
+          title: 'Демонстрационные данные сброшены',
+          message: 'Загружены 3 базовые заявки: «Новая», «В обработке» и «Готова».',
+          variant: 'info'
+        });
+      }
+
+      // =========================================================================
+      // 6. Рендеринг компонентов и страниц
+      // =========================================================================
+      function renderHeader() {
+        var navItems = [
+          { label: 'Главная', target: 'home' },
+          { label: 'Виды справок', target: 'certificates' },
+          { label: 'Мои заявки', target: state.role === 'staff' ? 'staff' : 'student' },
+          { label: 'Отследить', target: 'track' },
+          { label: 'Как это работает', target: 'home', scrollToId: 'how-it-works' }
+        ];
+
+        var desktopLinks = navItems.map(function (item) {
+          var isActive = !item.scrollToId && (
+            (item.target === 'home' && state.route === 'home') ||
+            (item.target === 'certificates' && state.route === 'certificates') ||
+            (item.target === 'track' && state.route === 'track') ||
+            ((item.target === 'student' || item.target === 'staff') && (state.route === 'student' || state.route === 'staff'))
+          );
+          return '<button type="button" class="nav-link' + (isActive ? ' active' : '') + '" data-action="nav" data-target="' + item.target + '"' + (item.scrollToId ? ' data-scroll="' + item.scrollToId + '"' : '') + '>' + escapeHtml(item.label) + '</button>';
+        }).join('');
+
+        var mobileDrawer = state.mobileMenuOpen ? (
+          '<div class="mobile-drawer">' +
+            '<nav class="mobile-nav-list" aria-label="Мобильная навигация">' +
+              navItems.map(function (item) {
+                return '<button type="button" class="mobile-nav-link" data-action="nav" data-target="' + item.target + '"' + (item.scrollToId ? ' data-scroll="' + item.scrollToId + '"' : '') + '>' + escapeHtml(item.label) + '</button>';
+              }).join('') +
+              '<div style="padding-top:0.5rem">' +
+                '<button type="button" class="btn btn-primary" style="width:100%" data-action="open-auth">Войти</button>' +
+              '</div>' +
+            '</nav>' +
+          '</div>'
+        ) : '';
+
+        return '<header class="site-header no-print">' +
+          '<div class="container header-inner">' +
+            '<button type="button" class="brand-btn" data-action="nav" data-target="home">' +
+              '<span class="brand-badge" aria-hidden="true">U</span>' +
+              '<span class="brand-name">UniDoc</span>' +
+            '</button>' +
+            '<nav class="desktop-nav" aria-label="Основная навигация">' + desktopLinks + '</nav>' +
+            '<div class="header-actions">' +
+              '<button type="button" class="btn-header-login" data-action="open-auth">Войти</button>' +
+              '<button type="button" class="btn-mobile-menu" data-action="toggle-mobile-menu" aria-label="' + (state.mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню') + '" aria-expanded="' + state.mobileMenuOpen + '">' +
+                svgIcon(state.mobileMenuOpen ? 'X' : 'Menu', 20) +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+          mobileDrawer +
+        '</header>';
+      }
+
+      function renderWorkspaceToolbar() {
+        var unreadCount = state.notifications.filter(function (n) { return !n.read; }).length;
+        var dropdownHtml = '';
+        if (state.notifOpen) {
+          var listHtml = state.notifications.length === 0
+            ? '<div style="padding:2rem 1rem;text-align:center;font-size:0.75rem;color:#64748B;">Пока нет уведомлений о заявках.</div>'
+            : state.notifications.slice(0, 12).map(function (item) {
+                return '<button type="button" class="notif-item ' + (!item.read ? 'unread' : '') + '" data-action="open-notif" data-id="' + escapeHtml(item.id) + '" data-num="' + escapeHtml(item.requestNumber) + '">' +
+                  '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">' +
+                    '<span style="font-size:0.75rem;font-weight:600;color:#0F172A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(item.title) + '</span>' +
+                    '<span class="font-mono tabular-nums" style="font-size:11px;color:#94A3B8;flex-shrink:0;">' + escapeHtml(formatShortDate(item.createdAt)) + '</span>' +
+                  '</div>' +
+                  '<p style="margin-top:0.25rem;font-size:0.75rem;line-height:1.45;color:#475569;">' + escapeHtml(item.message) + '</p>' +
+                  (item.status !== 'system'
+                    ? '<div style="margin-top:0.375rem;display:flex;align-items:center;justify-content:space-between;">' +
+                        renderStatusInline(item.status) +
+                        (!item.read ? '<span style="font-size:11px;font-weight:600;color:#1D4ED8;">Новое</span>' : '') +
+                      '</div>'
+                    : '') +
+                '</button>';
+              }).join('');
+
+          dropdownHtml = '<div class="notif-dropdown">' +
+            '<div class="notif-head">' +
+              '<div>' +
+                '<h3 style="font-size:0.875rem;font-weight:700;color:#0F172A;">Лента уведомлений</h3>' +
+                '<p style="font-size:0.75rem;color:#64748B;">Обновляется в реальном времени</p>' +
+              '</div>' +
+              (unreadCount > 0
+                ? '<button type="button" data-action="mark-all-read" style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.75rem;font-weight:600;color:#1D4ED8;">' + svgIcon('CheckCheck', 14) + '<span>Прочитать все</span></button>'
+                : '') +
+            '</div>' +
+            '<div class="notif-list">' + listHtml + '</div>' +
+          '</div>';
+        }
+
+        return '<div class="workspace-toolbar no-print">' +
+          '<div class="container toolbar-inner">' +
+            '<div class="role-group">' +
+              '<span style="font-size:0.75rem;font-weight:500;color:#64748B;">Демо-роль:</span>' +
+              '<div class="segmented" role="group" aria-label="Переключение демонстрационной роли">' +
+                '<button type="button" class="seg-btn ' + (state.role === 'student' ? 'active-blue' : '') + '" data-action="switch-role" data-role="student">' + svgIcon('UserRound', 14) + '<span>Студент</span></button>' +
+                '<button type="button" class="seg-btn ' + (state.role === 'staff' ? 'active-blue' : '') + '" data-action="switch-role" data-role="staff">' + svgIcon('Shield', 14) + '<span>Сотрудник</span></button>' +
+              '</div>' +
+              '<span style="font-size:0.75rem;color:#64748B;" class="lg-only-inline">Учебная имитация доступа · общее хранилище браузера</span>' +
+            '</div>' +
+            '<div class="toolbar-actions">' +
+              '<div class="notif-wrap" id="notif-dropdown-container">' +
+                '<button type="button" class="tool-btn" data-action="toggle-notif" aria-expanded="' + state.notifOpen + '">' +
+                  '<span style="color:#1D4ED8;display:inline-flex;">' + svgIcon('Bell', 14) + '</span>' +
+                  '<span>Уведомления</span>' +
+                  (unreadCount > 0 ? '<span class="font-mono tabular-nums" style="color:#1D4ED8;">(' + unreadCount + ')</span>' : '') +
+                '</button>' +
+                dropdownHtml +
+              '</div>' +
+              '<button type="button" class="tool-btn" data-action="reset-demo">' +
+                svgIcon('RotateCcw', 14) +
+                '<span>Сбросить демо-данные</span>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      function renderStatusTimeline(request) {
+        function getStageTimestamp(status) {
+          for (var i = request.history.length - 1; i >= 0; i--) {
+            if (request.history[i].status === status) return formatShortDate(request.history[i].timestamp);
+          }
+          return null;
+        }
+
+        if (request.status === 'Отклонена') {
+          var newTime = getStageTimestamp('Новая') || formatShortDate(request.createdAt);
+          var rejTime = getStageTimestamp('Отклонена') || formatShortDate(request.updatedAt);
+          return '<div style="display:flex;flex-direction:column;gap:1rem;">' +
+            '<div class="form-grid-2">' +
+              '<div style="border-radius:0.75rem;border:1px solid #E2E8F0;background:rgba(248,250,252,0.7);padding:1rem;">' +
+                '<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;font-weight:600;color:#1E293B;">' +
+                  '<span style="color:#1D4ED8;display:inline-flex;">' + svgIcon('FilePlus2', 16) + '</span><span>Новая</span>' +
+                '</div>' +
+                '<p class="tabular-nums" style="margin-top:0.25rem;font-size:0.75rem;color:#64748B;">' + escapeHtml(newTime) + '</p>' +
+              '</div>' +
+              '<div style="border-radius:0.75rem;border:1px solid #FECACA;background:rgba(254,242,242,0.7);padding:1rem;">' +
+                '<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;font-weight:600;color:#B91C1C;">' +
+                  '<span style="color:#DC2626;display:inline-flex;">' + svgIcon('XCircle', 16) + '</span><span>Отклонена</span>' +
+                '</div>' +
+                '<p class="tabular-nums" style="margin-top:0.25rem;font-size:0.75rem;color:#DC2626;">' + escapeHtml(rejTime) + '</p>' +
+              '</div>' +
+            '</div>' +
+            '<div style="border-radius:0.75rem;border:1px solid #FECACA;background:rgba(254,242,242,0.6);padding:1rem;">' +
+              '<p style="font-size:0.75rem;font-weight:600;color:#991B1B;">Причина отклонения</p>' +
+              '<p style="margin-top:0.25rem;font-size:0.875rem;line-height:1.5;color:#7F1D1D;">' +
+                escapeHtml(request.staffComment || 'Сотрудник деканата не указал дополнительное пояснение. Обратитесь в деканат для уточнения деталей.') +
+              '</p>' +
+            '</div>' +
+          '</div>';
+        }
+
+        var stages = [
+          { status: 'Новая', label: 'Новая', icon: 'FilePlus2', description: 'Заявка зарегистрирована и поступила в электронную приёмную' },
+          { status: 'В обработке', label: 'В обработке', icon: 'Clock3', description: 'Сотрудник деканата проверяет данные и готовит документ' },
+          { status: 'Готова', label: 'Готова', icon: 'CheckCircle2', description: 'Документ подписан и готов к получению' }
+        ];
+        var orderMap = { 'Новая': 0, 'В обработке': 1, 'Готова': 2 };
+        var currentIndex = orderMap[request.status] !== undefined ? orderMap[request.status] : 0;
+
+        return '<div class="timeline-grid">' +
+          stages.map(function (stage, index) {
+            var isCompleted = index < currentIndex || (index === 2 && currentIndex === 2);
+            var isCurrent = index === currentIndex && currentIndex < 2;
+            var stageTime = getStageTimestamp(stage.status);
+            var cls = isCompleted ? 'completed' : isCurrent ? 'current' : '';
+            var badgeStyle = isCompleted
+              ? 'background-color:#1D4ED8;color:#FFFFFF;'
+              : isCurrent
+                ? 'background-color:#DBEAFE;color:#1D4ED8;'
+                : 'background-color:#E2E8F0;color:#64748B;';
+
+            return '<div class="timeline-stage ' + cls + '">' +
+              '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">' +
+                '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+                  '<span style="display:flex;align-items:center;justify-content:center;width:1.75rem;height:1.75rem;border-radius:0.5rem;' + badgeStyle + '">' + svgIcon(stage.icon, 16) + '</span>' +
+                  '<span style="font-size:0.875rem;font-weight:600;color:' + (isCompleted || isCurrent ? '#0F172A' : '#64748B') + ';">' + escapeHtml(stage.label) + '</span>' +
+                '</div>' +
+                '<span class="font-mono tabular-nums" style="font-size:0.75rem;color:#94A3B8;">0' + (index + 1) + '</span>' +
+              '</div>' +
+              '<p style="margin-top:0.625rem;font-size:0.75rem;line-height:1.5;color:#475569;">' + escapeHtml(stage.description) + '</p>' +
+              '<p class="font-mono tabular-nums" style="margin-top:0.75rem;font-size:11px;color:#64748B;">' + escapeHtml(stageTime || (isCurrent ? 'Текущий этап' : 'Ожидается')) + '</p>' +
+            '</div>';
+          }).join('') +
+        '</div>';
+      }
+
+      function renderHomePage() {
+        var advantages = [
+          { icon: 'Clock', title: 'Экономия времени', description: 'Заявка оформляется за пару минут без визитов и очередей в деканат.' },
+          { icon: 'FileText', title: 'Удобное оформление', description: 'Понятная форма с выбором способа получения и подсказками.' },
+          { icon: 'BellRing', title: 'Прозрачные статусы', description: 'Уведомления о каждом этапе обработки в реальном времени.' },
+          { icon: 'Laptop', title: 'Доступ в любое время', description: 'История всех обращений и номера заявок всегда под рукой.' }
+        ];
+
+        var steps = [
+          { number: '01', title: 'Выберите нужную справку', description: 'Откройте каталог документов и выберите подходящий формат — с места учёбы, для военкомата, социальной стипендии или по месту требования.' },
+          { number: '02', title: 'Заполните заявку онлайн', description: 'Укажите ФИО, учебную группу, цель получения и выберите удобный способ: электронная копия или оригинал в деканате.' },
+          { number: '03', title: 'Отслеживайте готовность документа', description: 'Система присвоит уникальный номер. Следите за этапами «Новая» → «В обработке» → «Готова» и получайте уведомления.' }
+        ];
+
+        var popular = CERTIFICATE_TYPES.filter(function (c) { return c.popular; });
+
+        return '<section class="hero-section">' +
+          '<div class="container">' +
+            '<div class="hero-grid">' +
+              '<div class="hero-left">' +
+                '<p class="eyebrow">Цифровой сервис университета</p>' +
+                '<h1 class="hero-title text-balance">Университетские справки — без очередей</h1>' +
+                '<p class="hero-subtitle">Заказывайте необходимые документы онлайн и следите за их готовностью в личном кабинете</p>' +
+                '<div class="hero-cta-row">' +
+                  '<button type="button" class="btn btn-primary" data-action="nav" data-target="order"><span>Заказать справку</span>' + svgIcon('ArrowRight', 16) + '</button>' +
+                  '<button type="button" class="btn btn-secondary" data-action="nav" data-target="track"><span style="color:#1D4ED8;display:inline-flex;">' + svgIcon('Search', 16) + '</span><span>Отследить заявку</span></button>' +
+                '</div>' +
+                '<div class="hero-meta">' +
+                  '<span>5 видов справок</span><span aria-hidden="true">·</span>' +
+                  '<span>Мгновенная регистрация номера</span><span aria-hidden="true">·</span>' +
+                  '<button type="button" data-action="open-auth" style="font-weight:600;color:#1D4ED8;">Демо-вход для студента и деканата</button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="hero-right"><div class="visual-frame">' + heroIllustrationSvg() + '</div></div>' +
+            '</div>' +
+            '<div class="advantages-strip">' +
+              advantages.map(function (adv) {
+                return '<div class="adv-item">' +
+                  '<div class="icon-box">' + svgIcon(adv.icon, 16) + '</div>' +
+                  '<h2 style="margin-top:1rem;font-size:1rem;font-weight:700;color:#0F172A;">' + escapeHtml(adv.title) + '</h2>' +
+                  '<p style="margin-top:0.375rem;font-size:0.875rem;line-height:1.55;color:#475569;">' + escapeHtml(adv.description) + '</p>' +
+                '</div>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
+        '</section>' +
+
+        '<section id="how-it-works" class="section-block" style="scroll-margin-top:5rem;">' +
+          '<div class="container">' +
+            '<div style="max-width:42rem;">' +
+              '<p class="eyebrow">Простой процесс</p>' +
+              '<h2 style="margin-top:0.5rem;font-size:1.75rem;font-weight:700;color:#0F172A;">Как это работает</h2>' +
+              '<p style="margin-top:0.75rem;font-size:1rem;color:#475569;">От выбора документа до получения готовой справки — три понятных шага без повторных обращений в деканат.</p>' +
+            '</div>' +
+            '<div class="how-grid">' +
+              '<div class="how-left"><div class="visual-frame" style="min-height:320px;">' + deskIllustrationSvg() + '</div></div>' +
+              '<div class="how-right">' +
+                '<div class="steps-list">' +
+                  steps.map(function (step) {
+                    return '<div class="step-row">' +
+                      '<span class="font-mono tabular-nums" style="font-size:1.125rem;font-weight:600;color:#1D4ED8;flex-shrink:0;">' + step.number + '.</span>' +
+                      '<div>' +
+                        '<h3 style="font-size:1.125rem;font-weight:700;color:#0F172A;">' + escapeHtml(step.title) + '</h3>' +
+                        '<p style="margin-top:0.375rem;font-size:0.875rem;line-height:1.6;color:#475569;">' + escapeHtml(step.description) + '</p>' +
+                      '</div>' +
+                    '</div>';
+                  }).join('') +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</section>' +
+
+        '<section class="section-muted">' +
+          '<div class="container">' +
+            '<div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem;">' +
+              '<div style="max-width:42rem;">' +
+                '<p class="eyebrow">Каталог документов</p>' +
+                '<h2 style="margin-top:0.5rem;font-size:1.75rem;font-weight:700;color:#0F172A;">Популярные справки</h2>' +
+                '<p style="margin-top:0.5rem;font-size:1rem;color:#475569;">Самые востребованные документы, которые студенты заказывают через UniDoc.</p>' +
+              '</div>' +
+              '<button type="button" class="btn" style="font-size:0.875rem;color:#1D4ED8;" data-action="nav" data-target="certificates"><span>Все виды справок (5)</span>' + svgIcon('ArrowRight', 16) + '</button>' +
+            '</div>' +
+            '<div class="cards-grid-2" style="margin-top:2.5rem;">' +
+              popular.map(function (cert) {
+                return '<article class="card card-hover card-flex">' +
+                  '<div>' +
+                    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">' +
+                      '<div class="icon-box icon-box-lg">' + svgIcon(cert.iconName, 20) + '</div>' +
+                      '<span style="font-size:0.75rem;font-weight:500;color:#64748B;">Срок: ' + escapeHtml(cert.processingTime) + '</span>' +
+                    '</div>' +
+                    '<h3 style="margin-top:1.25rem;font-size:1.125rem;font-weight:700;color:#0F172A;">' + escapeHtml(cert.title) + '</h3>' +
+                    '<p style="margin-top:0.5rem;font-size:0.875rem;line-height:1.6;color:#475569;">' + escapeHtml(cert.description) + '</p>' +
+                  '</div>' +
+                  '<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid #F1F5F9;display:flex;align-items:center;justify-content:space-between;gap:1rem;">' +
+                    '<span style="font-size:0.75rem;color:#64748B;">Электронная копия · Лично в деканате</span>' +
+                    '<button type="button" class="btn btn-sm-primary" data-action="order-cert" data-cert="' + cert.id + '">Заказать</button>' +
+                  '</div>' +
+                '</article>';
+              }).join('') +
+            '</div>' +
+            '<div class="action-strip">' +
+              '<div>' +
+                '<h3 style="font-size:1.25rem;font-weight:700;color:#0F172A;">Уже подали заявку или хотите проверить работу деканата?</h3>' +
+                '<p style="margin-top:0.375rem;font-size:0.875rem;color:#334155;">Проверьте статус по номеру или переключитесь в демонстрационную панель сотрудника.</p>' +
+              '</div>' +
+              '<div style="display:flex;flex-wrap:wrap;gap:0.75rem;flex-shrink:0;">' +
+                '<button type="button" class="btn btn-sm-outline" style="min-height:42px;border-color:#93C5FD;color:#1D4ED8;" data-action="nav" data-target="track">Отследить заявку</button>' +
+                '<button type="button" class="btn" style="min-height:42px;border-radius:0.5rem;background:#0F172A;color:#FFFFFF;padding:0.5rem 1rem;font-size:0.875rem;" data-action="nav" data-target="staff">Панель сотрудника</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</section>';
+      }
+
+      function renderCertificatesPage() {
+        var q = normalizeSearchText(state.certSearchQuery);
+        var filtered = !q ? CERTIFICATE_TYPES : CERTIFICATE_TYPES.filter(function (c) {
+          return normalizeSearchText(c.title).indexOf(q) !== -1 || normalizeSearchText(c.description).indexOf(q) !== -1;
+        });
+
+        var bodyHtml = filtered.length === 0
+          ? '<div class="card" style="margin-top:2.5rem;background:var(--surface-muted);padding:2.5rem;text-align:center;">' +
+              '<p style="font-size:1.125rem;font-weight:700;color:#0F172A;">По запросу «' + escapeHtml(state.certSearchQuery) + '» ничего не найдено</p>' +
+              '<p style="margin-top:0.25rem;font-size:0.875rem;color:#475569;">Попробуйте изменить ключевое слово или просмотрите полный перечень справок.</p>' +
+              '<button type="button" class="btn btn-sm-primary" style="margin-top:1.25rem;" data-action="clear-cert-search">Показать все справки</button>' +
+            '</div>'
+          : '<div class="cards-grid-3" style="margin-top:2.5rem;">' +
+              filtered.map(function (cert) {
+                return '<article class="card card-hover card-flex">' +
+                  '<div>' +
+                    '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">' +
+                      '<div class="icon-box icon-box-lg">' + svgIcon(cert.iconName, 20) + '</div>' +
+                      '<span style="font-size:0.75rem;font-weight:500;color:#64748B;">' + escapeHtml(cert.processingTime) + '</span>' +
+                    '</div>' +
+                    '<h2 style="margin-top:1.25rem;font-size:1.125rem;font-weight:700;color:#0F172A;">' + escapeHtml(cert.title) + '</h2>' +
+                    '<p style="margin-top:0.5rem;font-size:0.875rem;line-height:1.6;color:#475569;">' + escapeHtml(cert.description) + '</p>' +
+                  '</div>' +
+                  '<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid #F1F5F9;">' +
+                    '<p style="font-size:0.75rem;color:#64748B;">Доступно: электронная копия · лично в деканате</p>' +
+                    '<button type="button" class="btn btn-primary" style="width:100%;margin-top:1rem;min-height:42px;" data-action="order-cert" data-cert="' + cert.id + '"><span>Заказать</span>' + svgIcon('ArrowRight', 16) + '</button>' +
+                  '</div>' +
+                '</article>';
+              }).join('') +
+            '</div>';
+
+        return '<section class="container page-section">' +
+          '<div class="page-header page-header-row">' +
+            '<div style="max-width:42rem;">' +
+              '<p class="eyebrow">Документы деканата</p>' +
+              '<h1 class="page-title">Виды справок</h1>' +
+              '<p style="margin-top:0.5rem;font-size:1rem;color:#475569;">Выберите подходящий документ и оформите онлайн-заявку — данные автоматически подставятся в форму.</p>' +
+            '</div>' +
+            '<div style="width:100%;max-width:18rem;">' +
+              '<label for="cert-search" class="sr-only">Поиск по видам справок</label>' +
+              '<div class="input-wrap">' +
+                '<span class="input-icon">' + svgIcon('Search', 16) + '</span>' +
+                '<input id="cert-search" type="search" class="input input-with-icon" value="' + escapeHtml(state.certSearchQuery) + '" placeholder="Найти справку..." data-input="cert-search" />' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          bodyHtml +
+        '</section>';
+      }
+
+      function renderOrderPage() {
+        var req = state.orderCreatedRequest;
+        if (req) {
+          return renderWorkspaceToolbar() +
+            '<section class="container-narrow page-section">' +
+              '<div class="card" style="border-color:#A7F3D0;padding:2rem;">' +
+                '<div style="display:flex;align-items:flex-start;gap:1rem;">' +
+                  '<div class="icon-box icon-box-lg" style="background:#ECFDF5;color:#059669;">' + svgIcon('CheckCircle2', 24) + '</div>' +
+                  '<div>' +
+                    '<p style="font-size:0.875rem;font-weight:600;color:#047857;">Заявка успешно оформлена</p>' +
+                    '<h1 style="margin-top:0.25rem;font-size:1.75rem;font-weight:700;color:#0F172A;">Заявка принята в работу</h1>' +
+                    '<p style="margin-top:0.5rem;font-size:0.875rem;line-height:1.55;color:#475569;">Запись сохранена в локальном хранилище браузера и уже видна в панели сотрудника деканата.</p>' +
+                  '</div>' +
+                '</div>' +
+                '<div style="margin-top:2rem;border-radius:0.75rem;border:1px solid #E2E8F0;background:#F8FAFC;padding:1.5rem;">' +
+                  '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;">' +
+                    '<div>' +
+                      '<p style="font-size:0.75rem;font-weight:500;color:#64748B;">Уникальный номер заявки</p>' +
+                      '<p class="font-mono tabular-nums" style="margin-top:0.25rem;font-size:1.5rem;font-weight:700;color:#1D4ED8;">' + escapeHtml(req.requestNumber) + '</p>' +
+                    '</div>' +
+                    '<button type="button" class="btn btn-sm-outline" data-action="copy-req-num">' +
+                      (state.orderCopied
+                        ? '<span style="color:#059669;display:inline-flex;">' + svgIcon('Check', 16) + '</span><span>Скопировано</span>'
+                        : '<span style="color:#64748B;display:inline-flex;">' + svgIcon('Copy', 16) + '</span><span>Скопировать номер</span>') +
+                    '</button>' +
+                  '</div>' +
+                  '<dl class="form-grid-2" style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid #E2E8F0;font-size:0.875rem;">' +
+                    '<div><dt style="font-size:0.75rem;color:#64748B;">Тип справки</dt><dd style="margin-top:0.2rem;font-weight:600;color:#0F172A;">' + escapeHtml(req.certificateTitle) + '</dd></div>' +
+                    '<div><dt style="font-size:0.75rem;color:#64748B;">Способ получения</dt><dd style="margin-top:0.2rem;font-weight:600;color:#0F172A;">' + escapeHtml(req.deliveryMethod) + '</dd></div>' +
+                    '<div><dt style="font-size:0.75rem;color:#64748B;">Студент</dt><dd style="margin-top:0.2rem;font-weight:500;color:#334155;">' + escapeHtml(req.studentName + ' · ' + req.studentGroup) + '</dd></div>' +
+                    '<div><dt style="font-size:0.75rem;color:#64748B;">Текущий статус</dt><dd style="margin-top:0.2rem;font-weight:600;color:#1D4ED8;">' + escapeHtml(req.status) + '</dd></div>' +
+                  '</dl>' +
+                '</div>' +
+                '<div style="margin-top:2rem;display:flex;flex-wrap:wrap;gap:0.875rem;">' +
+                  '<button type="button" class="btn btn-primary" data-action="nav" data-target="student"><span>Перейти в личный кабинет</span>' + svgIcon('ArrowRight', 16) + '</button>' +
+                  '<button type="button" class="btn btn-secondary" data-action="track-num" data-num="' + escapeHtml(req.requestNumber) + '">Отследить статус</button>' +
+                  '<button type="button" class="btn" style="padding:0.75rem 1rem;font-size:0.875rem;color:#475569;" data-action="order-another">Оформить ещё одну</button>' +
+                '</div>' +
+              '</div>' +
+            '</section>';
+        }
+
+        var selectedCert = CERTIFICATE_MAP[state.orderCertId];
+        var deliveries = [
+          { value: 'Электронная копия', title: 'Электронная копия', desc: 'PDF-версия в личном кабинете с электронной отметкой готовности.', icon: 'FileDown' },
+          { value: 'Лично в деканате', title: 'Лично в деканате', desc: 'Бумажный оригинал с синей подписью и гербовой печатью.', icon: 'Building2' }
+        ];
+
+        return renderWorkspaceToolbar() +
+          '<section class="container-narrow page-section">' +
+            '<div class="page-header">' +
+              '<p class="eyebrow">Онлайн-заявка</p>' +
+              '<h1 class="page-title">Оформление справки</h1>' +
+              '<p style="margin-top:0.5rem;font-size:1rem;color:#475569;">Заполните поля ниже. Обязательные поля отмечены звёздочкой (*).</p>' +
+            '</div>' +
+            '<form id="order-form" novalidate style="margin-top:2rem;display:flex;flex-direction:column;gap:1.5rem;">' +
+              (state.orderSubmitError
+                ? '<div role="alert" class="alert-box alert-red">' + svgIcon('AlertCircle', 20) + '<span>' + escapeHtml(state.orderSubmitError) + '</span></div>'
+                : '') +
+              '<div class="form-grid-2">' +
+                '<div>' +
+                  '<label for="order-name" style="display:block;font-size:0.875rem;font-weight:600;color:#0F172A;">ФИО студента <span style="color:#DC2626;">*</span></label>' +
+                  '<input id="order-name" type="text" class="input ' + (state.orderFieldErrors.studentName ? 'input-error' : '') + '" style="margin-top:0.5rem;" value="' + escapeHtml(state.orderName) + '" placeholder="Например: Смирнов Артём Игоревич" data-input="order-name" />' +
+                  (state.orderFieldErrors.studentName ? '<p class="field-error">' + escapeHtml(state.orderFieldErrors.studentName) + '</p>' : '') +
+                '</div>' +
+                '<div>' +
+                  '<label for="order-group" style="display:block;font-size:0.875rem;font-weight:600;color:#0F172A;">Учебная группа <span style="color:#DC2626;">*</span></label>' +
+                  '<input id="order-group" type="text" class="input ' + (state.orderFieldErrors.studentGroup ? 'input-error' : '') + '" style="margin-top:0.5rem;" value="' + escapeHtml(state.orderGroup) + '" placeholder="Например: ИВТ-22-04" data-input="order-group" />' +
+                  (state.orderFieldErrors.studentGroup ? '<p class="field-error">' + escapeHtml(state.orderFieldErrors.studentGroup) + '</p>' : '') +
+                '</div>' +
+              '</div>' +
+              '<div>' +
+                '<label for="order-cert-type" style="display:block;font-size:0.875rem;font-weight:600;color:#0F172A;">Тип справки <span style="color:#DC2626;">*</span></label>' +
+                '<select id="order-cert-type" class="select" style="margin-top:0.5rem;" data-change="order-cert">' +
+                  CERTIFICATE_TYPES.map(function (c) {
+                    return '<option value="' + c.id + '"' + (c.id === state.orderCertId ? ' selected' : '') + '>' + escapeHtml(c.title + ' (срок: ' + c.processingTime + ')') + '</option>';
+                  }).join('') +
+                '</select>' +
+                (selectedCert ? '<p style="margin-top:0.5rem;font-size:0.75rem;color:#64748B;">' + escapeHtml(selectedCert.description) + '</p>' : '') +
+              '</div>' +
+              '<div>' +
+                '<label for="order-purpose" style="display:block;font-size:0.875rem;font-weight:600;color:#0F172A;">Цель получения <span style="color:#DC2626;">*</span></label>' +
+                '<input id="order-purpose" type="text" class="input ' + (state.orderFieldErrors.purpose ? 'input-error' : '') + '" style="margin-top:0.5rem;" value="' + escapeHtml(state.orderPurpose) + '" placeholder="Укажите организацию или причину получения справки" data-input="order-purpose" />' +
+                (state.orderFieldErrors.purpose ? '<p class="field-error">' + escapeHtml(state.orderFieldErrors.purpose) + '</p>' : '') +
+                '<div style="margin-top:0.625rem;display:flex;flex-wrap:wrap;gap:0.5rem;">' +
+                  PURPOSE_SUGGESTIONS.map(function (s) {
+                    return '<button type="button" class="chip-btn" data-action="pick-purpose" data-purpose="' + escapeHtml(s) + '">' + escapeHtml(s) + '</button>';
+                  }).join('') +
+                '</div>' +
+              '</div>' +
+              '<div>' +
+                '<span style="display:block;font-size:0.875rem;font-weight:600;color:#0F172A;">Способ получения <span style="color:#DC2626;">*</span></span>' +
+                '<div class="form-grid-2" style="margin-top:0.625rem;">' +
+                  deliveries.map(function (opt) {
+                    var selected = state.orderDelivery === opt.value;
+                    return '<button type="button" class="delivery-card ' + (selected ? 'selected' : '') + '" data-action="pick-delivery" data-delivery="' + escapeHtml(opt.value) + '">' +
+                      '<div class="icon-box" style="' + (selected ? 'background:#1D4ED8;color:#FFFFFF;' : 'background:#F1F5F9;color:#64748B;') + '">' + svgIcon(opt.icon, 16) + '</div>' +
+                      '<div><p style="font-size:0.875rem;font-weight:700;color:#0F172A;">' + escapeHtml(opt.title) + '</p><p style="margin-top:0.25rem;font-size:0.75rem;line-height:1.45;color:#475569;">' + escapeHtml(opt.desc) + '</p></div>' +
+                    '</button>';
+                  }).join('') +
+                '</div>' +
+              '</div>' +
+              '<div>' +
+                '<label for="order-comment" style="display:block;font-size:0.875rem;font-weight:600;color:#0F172A;">Дополнительный комментарий</label>' +
+                '<textarea id="order-comment" rows="3" class="textarea" style="margin-top:0.5rem;" placeholder="Например: нужно указать количество экземпляров или период обучения..." data-input="order-comment">' + escapeHtml(state.orderComment) + '</textarea>' +
+              '</div>' +
+              '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;border-top:1px solid #E2E8F0;padding-top:1.5rem;">' +
+                '<button type="button" style="font-size:0.875rem;font-weight:500;color:#475569;" data-action="nav" data-target="certificates">← Вернуться к видам справок</button>' +
+                '<button type="submit" class="btn btn-primary"><span>Отправить заявку</span>' + svgIcon('ArrowRight', 16) + '</button>' +
+              '</div>' +
+            '</form>' +
+          '</section>';
+      }
+
+      function renderTrackPage() {
+        var clean = state.trackSearched.trim().toUpperCase();
+        var found = clean ? state.requests.find(function (r) { return r.requestNumber.toUpperCase() === clean; }) : null;
+
+        var quickPick = state.requests.length > 0
+          ? '<div style="margin-top:1rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;">' +
+              '<span style="font-size:0.75rem;color:#64748B;">Доступные заявки в базе:</span>' +
+              state.requests.slice(0, 6).map(function (req) {
+                var isAct = clean === req.requestNumber.toUpperCase();
+                return '<button type="button" class="chip-btn font-mono ' + (isAct ? 'active' : '') + '" data-action="track-num" data-num="' + escapeHtml(req.requestNumber) + '">' + escapeHtml(req.requestNumber) + '</button>';
+              }).join('') +
+            '</div>'
+          : '';
+
+        var resultHtml = '';
+        if (clean && !found) {
+          resultHtml = '<div role="alert" class="alert-box alert-red" style="margin-top:2rem;padding:1.5rem;border-radius:1rem;">' +
+            svgIcon('AlertCircle', 20) +
+            '<div><h2 style="font-size:1rem;font-weight:700;">Заявка с номером «' + escapeHtml(clean) + '» не найдена</h2><p style="margin-top:0.25rem;font-size:0.875rem;">Проверьте правильность ввода номера или выберите одну из существующих заявок выше.</p></div>' +
+          '</div>';
+        } else if (found) {
+          var readyBanner = '';
+          if (found.status === 'Готова') {
+            readyBanner = '<div class="alert-box alert-emerald" style="margin-top:1.5rem;flex-direction:column;gap:0.35rem;">' +
+              '<div style="display:flex;align-items:center;gap:0.5rem;font-weight:700;">' + svgIcon('CheckCircle2', 16) + '<span>Справка готова</span></div>' +
+              (found.deliveryMethod === 'Электронная копия'
+                ? '<p style="font-size:0.75rem;line-height:1.5;">Обработка завершена. Скачайте готовую электронную копию справки в формате PDF по кнопке выше.</p>'
+                : '<div style="display:flex;align-items:flex-start;gap:0.5rem;font-size:0.75rem;line-height:1.5;margin-top:0.25rem;">' + svgIcon('MapPin', 16) + '<div><p style="font-weight:600;">Место получения: ' + escapeHtml(PICKUP_LOCATION_INFO.office) + '</p><p>График выдачи: ' + escapeHtml(PICKUP_LOCATION_INFO.hours) + '. ' + escapeHtml(PICKUP_LOCATION_INFO.requirements) + '</p></div></div>') +
+            '</div>';
+          }
+
+          var pdfActions = (found.status === 'Готова' && found.deliveryMethod === 'Электронная копия')
+            ? '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.25rem;">' +
+                '<button type="button" class="btn btn-sm-primary" data-action="download-pdf" data-id="' + escapeHtml(found.id) + '">' + svgIcon('Download', 14) + '<span>Скачать справку PDF</span></button>' +
+                '<button type="button" class="btn btn-sm-soft" data-action="preview-pdf" data-id="' + escapeHtml(found.id) + '">' + svgIcon('Eye', 14) + '<span>Предпросмотр</span></button>' +
+              '</div>'
+            : '';
+
+          resultHtml = '<div class="card" style="margin-top:2rem;padding:2rem;">' +
+            '<div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:1rem;border-bottom:1px solid #E2E8F0;padding-bottom:1.5rem;">' +
+              '<div>' +
+                '<p class="font-mono tabular-nums" style="font-size:0.875rem;font-weight:600;color:#1D4ED8;">' + escapeHtml(found.requestNumber) + '</p>' +
+                '<h2 style="margin-top:0.25rem;font-size:1.5rem;font-weight:700;color:#0F172A;">' + escapeHtml(found.certificateTitle) + '</h2>' +
+                '<p style="margin-top:0.375rem;font-size:0.875rem;color:#475569;">' + escapeHtml(found.studentName + ' · ' + found.studentGroup) + '</p>' +
+              '</div>' +
+              '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.5rem;">' +
+                renderStatusInline(found.status) +
+                pdfActions +
+              '</div>' +
+            '</div>' +
+            readyBanner +
+            '<dl class="kpi-grid-3" style="margin-top:1.5rem;border:none;border-radius:0;">' +
+              '<div style="padding:0.25rem 0;"><dt style="font-size:0.75rem;color:#64748B;">Дата подачи</dt><dd class="tabular-nums" style="margin-top:0.25rem;font-size:0.875rem;font-weight:500;">' + escapeHtml(formatRussianDate(found.createdAt)) + '</dd></div>' +
+              '<div style="padding:0.25rem 0;"><dt style="font-size:0.75rem;color:#64748B;">Способ получения</dt><dd style="margin-top:0.25rem;font-size:0.875rem;font-weight:500;">' + escapeHtml(found.deliveryMethod) + '</dd></div>' +
+              '<div style="padding:0.25rem 0;"><dt style="font-size:0.75rem;color:#64748B;">Цель получения</dt><dd style="margin-top:0.25rem;font-size:0.875rem;font-weight:500;">' + escapeHtml(found.purpose) + '</dd></div>' +
+            '</dl>' +
+            '<div style="margin-top:2rem;border-top:1px solid #E2E8F0;padding-top:1.5rem;">' +
+              '<h3 style="margin-bottom:1rem;font-size:0.875rem;font-weight:700;color:#0F172A;">Шкала выполнения заявки</h3>' +
+              renderStatusTimeline(found) +
+            '</div>' +
+            (found.status !== 'Отклонена'
+              ? '<div style="margin-top:1.5rem;border-radius:0.75rem;border:1px solid #E2E8F0;background:#F8FAFC;padding:1rem;">' +
+                  '<p style="font-size:0.75rem;font-weight:600;color:#64748B;">Комментарий сотрудника деканата</p>' +
+                  '<p style="margin-top:0.25rem;font-size:0.875rem;line-height:1.55;color:#0F172A;">' + escapeHtml(found.staffComment || 'Комментарий от сотрудника пока не добавлен.') + '</p>' +
+                '</div>'
+              : '') +
+            '<div style="margin-top:1.5rem;border-top:1px solid #E2E8F0;padding-top:1.5rem;">' +
+              '<h3 style="font-size:0.875rem;font-weight:700;color:#0F172A;">История этапов</h3>' +
+              '<ul style="margin-top:0.75rem;">' +
+                found.history.slice().reverse().map(function (h) {
+                  return '<li style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:0.25rem 1rem;padding:0.75rem 0;border-bottom:1px solid #F1F5F9;">' +
+                    '<div><span style="font-size:0.75rem;font-weight:600;color:#0F172A;">' + escapeHtml(h.status) + '</span><span style="margin:0 0.5rem;color:#CBD5E1;">·</span><span style="font-size:0.75rem;color:#475569;">' + escapeHtml(h.note) + '</span></div>' +
+                    '<span class="font-mono tabular-nums" style="font-size:0.75rem;color:#94A3B8;">' + escapeHtml(h.actor + ' · ' + formatShortDate(h.timestamp)) + '</span>' +
+                  '</li>';
+                }).join('') +
+              '</ul>' +
+            '</div>' +
+          '</div>';
+        } else if (!clean) {
+          resultHtml = '<div class="card" style="margin-top:2.5rem;background:var(--surface-muted);padding:2rem;text-align:center;">' +
+            '<p style="font-size:0.875rem;color:#475569;">Введите номер заявки в поле поиска выше или оформите новую справку.</p>' +
+            '<button type="button" class="btn btn-primary" style="margin-top:1rem;min-height:40px;" data-action="nav" data-target="order">Оформить заявку</button>' +
+          '</div>';
+        }
+
+        return renderWorkspaceToolbar() +
+          '<section class="container-narrow page-section">' +
+            '<div class="page-header">' +
+              '<p class="eyebrow">Проверка статуса документа</p>' +
+              '<h1 class="page-title">Отслеживание заявки</h1>' +
+              '<p style="margin-top:0.5rem;font-size:1rem;color:#475569;">Введите уникальный номер заявки, чтобы увидеть актуальный этап подготовки и комментарий сотрудника.</p>' +
+            '</div>' +
+            '<form id="track-form" style="margin-top:2rem;">' +
+              '<label for="track-number-input" style="display:block;font-size:0.875rem;font-weight:600;color:#0F172A;">Номер заявки</label>' +
+              '<div style="margin-top:0.5rem;display:flex;flex-wrap:wrap;gap:0.75rem;">' +
+                '<div class="input-wrap" style="flex:1 1 240px;">' +
+                  '<span class="input-icon">' + svgIcon('Search', 16) + '</span>' +
+                  '<input id="track-number-input" type="text" class="input input-with-icon font-mono" value="' + escapeHtml(state.trackInput) + '" placeholder="Например: UD-2026-1001" data-input="track-input" />' +
+                '</div>' +
+                '<button type="submit" class="btn btn-primary">Найти заявку</button>' +
+              '</div>' +
+              (state.trackError ? '<p class="field-error">' + escapeHtml(state.trackError) + '</p>' : '') +
+            '</form>' +
+            quickPick +
+            resultHtml +
+          '</section>';
+      }
+
+      function renderStudentDashboard() {
+        var targetName = normalizeSearchText(state.studentProfile.fullName);
+        var myRequests = state.requests.filter(function (r) {
+          return normalizeSearchText(r.studentName) === targetName;
+        });
+        var baseList = state.studentScope === 'mine' ? myRequests : state.requests;
+        var q = normalizeSearchText(state.studentSearch);
+        var visible = baseList.filter(function (r) {
+          var mStatus = state.studentStatusFilter === 'Все' || r.status === state.studentStatusFilter;
+          var mQuery = !q ||
+            normalizeSearchText(r.requestNumber).indexOf(q) !== -1 ||
+            normalizeSearchText(r.studentName).indexOf(q) !== -1 ||
+            normalizeSearchText(r.studentGroup).indexOf(q) !== -1 ||
+            normalizeSearchText(r.certificateTitle).indexOf(q) !== -1;
+          return mStatus && mQuery;
+        });
+
+        var counts = {
+          total: baseList.length,
+          inWork: baseList.filter(function (r) { return r.status === 'Новая' || r.status === 'В обработке'; }).length,
+          ready: baseList.filter(function (r) { return r.status === 'Готова'; }).length
+        };
+
+        var profileEditorHtml = state.editingProfile
+          ? '<form id="profile-edit-form" style="margin-top:1.5rem;border-radius:1rem;border:1px solid #BFDBFE;background:rgba(239,246,255,0.6);padding:1.25rem;">' +
+              '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;align-items:end;">' +
+                '<div><label style="display:block;font-size:0.75rem;font-weight:600;">ФИО студента</label><input type="text" class="input" style="margin-top:0.375rem;padding:0.5rem 0.75rem;" value="' + escapeHtml(state.draftProfileName) + '" data-input="draft-profile-name" /></div>' +
+                '<div><label style="display:block;font-size:0.75rem;font-weight:600;">Учебная группа</label><input type="text" class="input" style="margin-top:0.375rem;padding:0.5rem 0.75rem;" value="' + escapeHtml(state.draftProfileGroup) + '" data-input="draft-profile-group" /></div>' +
+                '<div style="display:flex;gap:0.5rem;">' +
+                  '<button type="submit" class="btn btn-sm-primary">Сохранить</button>' +
+                  '<button type="button" class="btn btn-sm-outline" data-action="cancel-profile">Отмена</button>' +
+                '</div>' +
+              '</div>' +
+              (state.profileError ? '<p class="field-error">' + escapeHtml(state.profileError) + '</p>' : '') +
+            '</form>'
+          : '';
+
+        var listHtml = visible.length === 0
+          ? '<div class="card" style="margin-top:2rem;background:var(--surface-muted);padding:2.5rem;text-align:center;">' +
+              '<div style="color:#94A3B8;display:flex;justify-content:center;">' + svgIcon('FileText', 40) + '</div>' +
+              '<h2 style="margin-top:1rem;font-size:1.125rem;font-weight:700;color:#0F172A;">Заявки не найдены</h2>' +
+              '<p style="margin-top:0.375rem;font-size:0.875rem;color:#475569;">' +
+                (state.studentSearch.trim()
+                  ? 'По запросу «' + escapeHtml(state.studentSearch) + '» ничего не найдено.'
+                  : state.studentStatusFilter !== 'Все'
+                    ? 'В статусе «' + escapeHtml(state.studentStatusFilter) + '» нет заявок. Попробуйте выбрать фильтр «Все».'
+                    : 'Оформите первую справку онлайн — она сразу появится в вашем личном кабинете.') +
+              '</p>' +
+              '<button type="button" class="btn btn-primary" style="margin-top:1.25rem;min-height:42px;" data-action="' + (state.studentSearch.trim() || state.studentStatusFilter !== 'Все' ? 'reset-student-filters' : 'nav') + '" data-target="order">' +
+                (state.studentSearch.trim() || state.studentStatusFilter !== 'Все' ? 'Сбросить поиск и фильтры' : 'Создать заявку') +
+              '</button>' +
+            '</div>'
+          : '<div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:1rem;">' +
+              visible.map(function (req) {
+                var isExpanded = state.studentExpandedId === req.id;
+                return '<article class="card card-hover">' +
+                  '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem;align-items:flex-start;">' +
+                    '<div style="flex:1 1 320px;">' +
+                      '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;">' +
+                        '<span class="font-mono tabular-nums" style="font-size:0.875rem;font-weight:600;color:#1D4ED8;">' + escapeHtml(req.requestNumber) + '</span>' +
+                        '<span style="color:#CBD5E1;">·</span>' +
+                        renderStatusInline(req.status) +
+                      '</div>' +
+                      '<h2 style="margin-top:0.5rem;font-size:1.125rem;font-weight:700;color:#0F172A;">' + escapeHtml(req.certificateTitle) + '</h2>' +
+                      '<div style="margin-top:0.375rem;display:flex;flex-wrap:wrap;gap:0.25rem 0.625rem;font-size:0.75rem;color:#64748B;">' +
+                        '<span>' + escapeHtml(req.studentName) + '</span><span>·</span>' +
+                        '<span class="font-mono">' + escapeHtml(req.studentGroup) + '</span><span>·</span>' +
+                        '<span class="tabular-nums">Оформлена: ' + escapeHtml(formatRussianDate(req.createdAt)) + '</span><span>·</span>' +
+                        '<span>' + escapeHtml(req.deliveryMethod) + '</span>' +
+                      '</div>' +
+                      '<p style="margin-top:0.75rem;font-size:0.875rem;color:#334155;"><span style="color:#64748B;">Цель:</span> ' + escapeHtml(req.purpose) + '</p>' +
+                      (req.status === 'Готова'
+                        ? '<div class="alert-box alert-emerald" style="margin-top:0.75rem;flex-direction:column;gap:0.25rem;">' +
+                            '<div style="display:flex;align-items:center;gap:0.5rem;font-weight:700;">' + svgIcon('CheckCircle2', 16) + '<span>Справка готова</span></div>' +
+                            (req.deliveryMethod === 'Электронная копия'
+                              ? '<p style="font-size:0.75rem;line-height:1.5;">Электронный документ сформирован. Вы можете скачать демонстрационную справку в формате PDF или открыть её предпросмотр.</p>'
+                              : '<div style="display:flex;align-items:flex-start;gap:0.5rem;font-size:0.75rem;line-height:1.5;">' + svgIcon('MapPin', 16) + '<div><p style="font-weight:600;">Место получения: ' + escapeHtml(PICKUP_LOCATION_INFO.office) + '</p><p>График выдачи: ' + escapeHtml(PICKUP_LOCATION_INFO.hours) + '. ' + escapeHtml(PICKUP_LOCATION_INFO.requirements) + '</p></div></div>') +
+                          '</div>'
+                        : '') +
+                      (req.staffComment
+                        ? '<div style="margin-top:0.75rem;border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.75rem;line-height:1.5;' + (req.status === 'Отклонена' ? 'border:1px solid #FECACA;background:#FEF2F2;color:#7F1D1D;' : 'border:1px solid #E2E8F0;background:#F8FAFC;color:#334155;') + '">' +
+                            '<span style="font-weight:600;">' + (req.status === 'Отклонена' ? 'Причина отклонения:' : 'Комментарий деканата:') + '</span> ' + escapeHtml(req.staffComment) +
+                          '</div>'
+                        : '') +
+                    '</div>' +
+                    '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;flex-shrink:0;">' +
+                      (req.status === 'Готова' && req.deliveryMethod === 'Электронная копия'
+                        ? '<button type="button" class="btn btn-sm-primary" data-action="download-pdf" data-id="' + escapeHtml(req.id) + '">' + svgIcon('Download', 14) + '<span>Скачать справку PDF</span></button>' +
+                          '<button type="button" class="btn btn-sm-soft" data-action="preview-pdf" data-id="' + escapeHtml(req.id) + '">' + svgIcon('Eye', 14) + '<span>Предпросмотр</span></button>'
+                        : '') +
+                      '<button type="button" class="btn btn-sm-outline" data-action="toggle-expand" data-id="' + escapeHtml(req.id) + '" aria-expanded="' + isExpanded + '"><span>' + (isExpanded ? 'Свернуть' : 'Подробнее') + '</span>' + svgIcon(isExpanded ? 'ChevronUp' : 'ChevronDown', 14) + '</button>' +
+                      '<button type="button" class="btn btn-sm-muted" data-action="track-num" data-num="' + escapeHtml(req.requestNumber) + '">Отследить</button>' +
+                    '</div>' +
+                  '</div>' +
+                  (isExpanded
+                    ? '<div style="margin-top:1.25rem;border-top:1px solid #E2E8F0;padding-top:1.25rem;display:flex;flex-direction:column;gap:1.25rem;">' +
+                        '<dl class="kpi-grid-3" style="margin-top:0;border:none;border-radius:0;font-size:0.75rem;">' +
+                          '<div><dt style="color:#64748B;">Дата и время создания</dt><dd class="tabular-nums" style="margin-top:0.25rem;font-weight:500;">' + escapeHtml(formatRussianDate(req.createdAt)) + '</dd></div>' +
+                          '<div><dt style="color:#64748B;">Последнее обновление</dt><dd class="tabular-nums" style="margin-top:0.25rem;font-weight:500;">' + escapeHtml(formatRussianDate(req.updatedAt)) + '</dd></div>' +
+                          '<div><dt style="color:#64748B;">Комментарий студента</dt><dd style="margin-top:0.25rem;font-weight:500;">' + escapeHtml(req.studentComment || 'Не указан') + '</dd></div>' +
+                        '</dl>' +
+                        '<div><p style="margin-bottom:0.75rem;font-size:0.75rem;font-weight:600;color:#0F172A;">Шкала готовности</p>' + renderStatusTimeline(req) + '</div>' +
+                        '<div><p style="font-size:0.75rem;font-weight:600;color:#0F172A;">История обработки</p>' +
+                          '<ul style="margin-top:0.5rem;border-radius:0.75rem;border:1px solid #E2E8F0;background:#F8FAFC;padding:0 1rem;">' +
+                            req.history.slice().reverse().map(function (h) {
+                              return '<li style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:0.25rem 1rem;padding:0.625rem 0;border-bottom:1px solid #F1F5F9;font-size:0.75rem;">' +
+                                '<div><span style="font-weight:600;color:#0F172A;">' + escapeHtml(h.status) + '</span><span style="margin:0 0.5rem;color:#CBD5E1;">·</span><span style="color:#475569;">' + escapeHtml(h.note) + '</span></div>' +
+                                '<span class="font-mono tabular-nums" style="font-size:11px;color:#94A3B8;">' + escapeHtml(h.actor + ' · ' + formatShortDate(h.timestamp)) + '</span>' +
+                              '</li>';
+                            }).join('') +
+                          '</ul>' +
+                        '</div>' +
+                      '</div>'
+                    : '') +
+                '</article>';
+              }).join('') +
+            '</div>';
+
+        return renderWorkspaceToolbar() +
+          '<section class="container page-section">' +
+            '<div class="page-header page-header-lg-row">' +
+              '<div style="display:flex;align-items:flex-start;gap:1rem;">' +
+                '<div style="width:3.5rem;height:3.5rem;border-radius:9999px;overflow:hidden;border:1px solid #E2E8F0;flex-shrink:0;">' + avatarSvg('student') + '</div>' +
+                '<div>' +
+                  '<p class="eyebrow">Личный кабинет студента</p>' +
+                  '<h1 style="margin-top:0.25rem;font-size:1.75rem;font-weight:700;color:#0F172A;">Здравствуйте, ' + escapeHtml(state.studentProfile.fullName) + '</h1>' +
+                  '<div style="margin-top:0.5rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.25rem 0.75rem;font-size:0.875rem;color:#475569;">' +
+                    '<span>Группа: <strong class="font-mono" style="color:#0F172A;">' + escapeHtml(state.studentProfile.group) + '</strong></span>' +
+                    '<span>·</span><span>' + escapeHtml(state.studentProfile.faculty) + '</span><span>·</span>' +
+                    '<button type="button" data-action="toggle-edit-profile" style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.75rem;font-weight:600;color:#1D4ED8;">' + svgIcon('Edit3', 14) + '<span>' + (state.editingProfile ? 'Скрыть' : 'Изменить данные') + '</span></button>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div style="display:flex;flex-wrap:wrap;gap:0.75rem;flex-shrink:0;">' +
+                '<button type="button" class="btn btn-secondary" style="min-height:42px;padding:0.5rem 1rem;" data-action="nav" data-target="track"><span style="color:#1D4ED8;display:inline-flex;">' + svgIcon('Search', 16) + '</span><span>Поиск по номеру</span></button>' +
+                '<button type="button" class="btn btn-primary" style="min-height:42px;padding:0.5rem 1.25rem;" data-action="nav" data-target="order">' + svgIcon('FilePlus', 16) + '<span>Создать заявку</span></button>' +
+              '</div>' +
+            '</div>' +
+            profileEditorHtml +
+            '<div class="kpi-grid-3">' +
+              '<div class="kpi-cell"><p style="font-size:0.75rem;font-weight:500;color:#64748B;">Количество заявок</p><p class="tabular-nums" style="margin-top:0.375rem;font-family:var(--font-display);font-size:1.875rem;font-weight:700;color:#0F172A;">' + counts.total + '</p></div>' +
+              '<div class="kpi-cell"><p style="font-size:0.75rem;font-weight:500;color:#64748B;">Новые и в обработке</p><p class="tabular-nums" style="margin-top:0.375rem;font-family:var(--font-display);font-size:1.875rem;font-weight:700;color:#1D4ED8;">' + counts.inWork + '</p></div>' +
+              '<div class="kpi-cell"><p style="font-size:0.75rem;font-weight:500;color:#64748B;">Готовы к получению</p><p class="tabular-nums" style="margin-top:0.375rem;font-family:var(--font-display);font-size:1.875rem;font-weight:700;color:#047857;">' + counts.ready + '</p></div>' +
+            '</div>' +
+            '<div style="margin-top:2rem;display:flex;flex-direction:column;gap:1rem;">' +
+              '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem;align-items:center;">' +
+                '<div class="input-wrap" style="max-width:24rem;">' +
+                  '<span class="input-icon">' + svgIcon('Search', 16) + '</span>' +
+                  '<input type="search" class="input input-with-icon" value="' + escapeHtml(state.studentSearch) + '" placeholder="Поиск по номеру, ФИО или группе..." data-input="student-search" />' +
+                '</div>' +
+                '<div class="segmented segmented-muted">' +
+                  '<button type="button" class="seg-btn ' + (state.studentScope === 'all' ? 'active-white' : '') + '" data-action="student-scope" data-scope="all">Все заявки (' + state.requests.length + ')</button>' +
+                  '<button type="button" class="seg-btn ' + (state.studentScope === 'mine' ? 'active-white' : '') + '" data-action="student-scope" data-scope="mine">Только мои (' + myRequests.length + ')</button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="segmented segmented-muted" style="width:fit-content;flex-wrap:wrap;">' +
+                ['Все'].concat(ALL_STATUSES).map(function (st) {
+                  return '<button type="button" class="seg-btn ' + (state.studentStatusFilter === st ? 'active-blue' : '') + '" data-action="student-status" data-status="' + escapeHtml(st) + '">' + escapeHtml(st) + '</button>';
+                }).join('') +
+              '</div>' +
+            '</div>' +
+            listHtml +
+          '</section>';
+      }
+
+      function renderStaffDashboard() {
+        var stats = {
+          total: state.requests.length,
+          newCount: state.requests.filter(function (r) { return r.status === 'Новая'; }).length,
+          inProgress: state.requests.filter(function (r) { return r.status === 'В обработке'; }).length,
+          ready: state.requests.filter(function (r) { return r.status === 'Готова'; }).length
+        };
+
+        var q = normalizeSearchText(state.staffSearch);
+        var filtered = state.requests.filter(function (req) {
+          var mStatus = state.staffStatusFilter === 'Все' || req.status === state.staffStatusFilter;
+          var mQuery = !q ||
+            normalizeSearchText(req.studentName).indexOf(q) !== -1 ||
+            normalizeSearchText(req.requestNumber).indexOf(q) !== -1 ||
+            normalizeSearchText(req.studentGroup).indexOf(q) !== -1;
+          return mStatus && mQuery;
+        });
+
+        var selectedRequest = filtered.find(function (r) { return r.id === state.staffSelectedId; }) || filtered[0] || null;
+        if (selectedRequest && selectedRequest.id !== state.staffSelectedId) {
+          state.staffSelectedId = selectedRequest.id;
+          state.staffEditStatus = selectedRequest.status;
+          state.staffEditComment = selectedRequest.staffComment;
+        }
+
+        var listHtml = filtered.length === 0
+          ? '<div class="card" style="background:var(--surface-muted);padding:2rem;text-align:center;">' +
+              '<div style="color:#94A3B8;display:flex;justify-content:center;">' + svgIcon('ClipboardList', 36) + '</div>' +
+              '<p style="margin-top:0.75rem;font-size:1rem;font-weight:700;color:#0F172A;">Заявки не найдены</p>' +
+              '<p style="margin-top:0.25rem;font-size:0.75rem;color:#64748B;">Измените строку поиска или фильтр статуса.</p>' +
+              '<button type="button" class="btn btn-sm-primary" style="margin-top:1rem;" data-action="reset-staff-filters">Сбросить фильтры</button>' +
+            '</div>'
+          : '<div style="display:flex;flex-direction:column;gap:0.75rem;">' +
+              filtered.map(function (req) {
+                var isSel = selectedRequest && selectedRequest.id === req.id;
+                return '<button type="button" class="queue-item ' + (isSel ? 'selected' : '') + '" data-action="select-staff-req" data-id="' + escapeHtml(req.id) + '">' +
+                  '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">' +
+                    '<span class="font-mono tabular-nums" style="font-size:0.75rem;font-weight:600;color:#1D4ED8;">' + escapeHtml(req.requestNumber) + '</span>' +
+                    renderStatusInline(req.status) +
+                  '</div>' +
+                  '<p style="margin-top:0.5rem;font-family:var(--font-display);font-size:0.875rem;font-weight:700;color:#0F172A;">' + escapeHtml(req.studentName) + '</p>' +
+                  '<p style="margin-top:0.125rem;font-size:0.75rem;color:#475569;">' + escapeHtml(req.certificateTitle) + '</p>' +
+                  '<p class="tabular-nums" style="margin-top:0.5rem;font-size:11px;color:#64748B;">' + escapeHtml(req.studentGroup + ' · ' + formatRussianDate(req.createdAt, false) + ' · ' + req.deliveryMethod) + '</p>' +
+                '</button>';
+              }).join('') +
+            '</div>';
+
+        var inspectorHtml = !selectedRequest
+          ? '<div class="card" style="background:var(--surface-muted);padding:2.5rem;text-align:center;"><p style="font-size:0.875rem;color:#475569;">Выберите заявку из списка слева для просмотра деталей и изменения статуса.</p></div>'
+          : '<div class="card" style="padding:1.75rem;">' +
+              '<div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:1rem;border-bottom:1px solid #E2E8F0;padding-bottom:1.25rem;">' +
+                '<div>' +
+                  '<p class="font-mono tabular-nums" style="font-size:0.875rem;font-weight:600;color:#1D4ED8;">' + escapeHtml(selectedRequest.requestNumber) + '</p>' +
+                  '<h2 style="margin-top:0.25rem;font-size:1.25rem;font-weight:700;color:#0F172A;">' + escapeHtml(selectedRequest.certificateTitle) + '</h2>' +
+                '</div>' +
+                renderStatusInline(selectedRequest.status) +
+              '</div>' +
+              '<dl class="form-grid-2" style="margin-top:1.5rem;font-size:0.875rem;">' +
+                '<div><dt style="font-size:0.75rem;color:#64748B;">ФИО студента</dt><dd style="margin-top:0.15rem;font-weight:600;color:#0F172A;">' + escapeHtml(selectedRequest.studentName) + '</dd></div>' +
+                '<div><dt style="font-size:0.75rem;color:#64748B;">Учебная группа</dt><dd class="font-mono" style="margin-top:0.15rem;font-weight:600;color:#0F172A;">' + escapeHtml(selectedRequest.studentGroup) + '</dd></div>' +
+                '<div><dt style="font-size:0.75rem;color:#64748B;">Способ получения</dt><dd style="margin-top:0.15rem;font-weight:500;color:#334155;">' + escapeHtml(selectedRequest.deliveryMethod) + '</dd></div>' +
+                '<div><dt style="font-size:0.75rem;color:#64748B;">Дата создания</dt><dd class="tabular-nums" style="margin-top:0.15rem;font-weight:500;color:#334155;">' + escapeHtml(formatRussianDate(selectedRequest.createdAt)) + '</dd></div>' +
+                '<div style="grid-column:1 / -1;"><dt style="font-size:0.75rem;color:#64748B;">Цель получения</dt><dd style="margin-top:0.15rem;font-weight:500;color:#0F172A;">' + escapeHtml(selectedRequest.purpose) + '</dd></div>' +
+                '<div style="grid-column:1 / -1;"><dt style="font-size:0.75rem;color:#64748B;">Комментарий студента</dt><dd style="margin-top:0.25rem;border-radius:0.75rem;border:1px solid #E2E8F0;background:#F8FAFC;padding:0.625rem 0.875rem;color:#334155;">' + escapeHtml(selectedRequest.studentComment || 'Без комментария') + '</dd></div>' +
+              '</dl>' +
+              '<form id="staff-update-form" style="margin-top:2rem;border-top:1px solid #E2E8F0;padding-top:1.5rem;display:flex;flex-direction:column;gap:1.25rem;">' +
+                '<div>' +
+                  '<span style="display:block;font-size:0.875rem;font-weight:600;color:#0F172A;">Изменить статус заявки</span>' +
+                  '<div style="margin-top:0.625rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.625rem;">' +
+                    ALL_STATUSES.map(function (st) {
+                      var active = state.staffEditStatus === st;
+                      var styleStr = active
+                        ? (st === 'Отклонена' ? 'border-color:#DC2626;background:#DC2626;color:#FFFFFF;' : 'border-color:#1D4ED8;background:#1D4ED8;color:#FFFFFF;')
+                        : 'border-color:#E2E8F0;background:#FFFFFF;color:#334155;';
+                      return '<button type="button" data-action="staff-pick-status" data-status="' + escapeHtml(st) + '" style="min-height:40px;border-radius:0.75rem;border:1px solid;padding:0.5rem 0.75rem;font-size:0.75rem;font-weight:600;' + styleStr + '">' + escapeHtml(st) + '</button>';
+                    }).join('') +
+                  '</div>' +
+                '</div>' +
+                '<div>' +
+                  '<label for="staff-comment-input" style="display:block;font-size:0.875rem;font-weight:600;color:#0F172A;">Комментарий сотрудника ' + (state.staffEditStatus === 'Отклонена' ? '<span style="color:#DC2626;">* (укажите причину)</span>' : '') + '</label>' +
+                  '<textarea id="staff-comment-input" rows="3" class="textarea" style="margin-top:0.5rem;" placeholder="' + (state.staffEditStatus === 'Отклонена' ? 'Укажите причину отклонения заявки для студента...' : 'Например: Справка подписана, заберите в каб. 214...') + '" data-input="staff-comment">' + escapeHtml(state.staffEditComment) + '</textarea>' +
+                  '<div style="margin-top:0.5rem;display:flex;flex-wrap:wrap;gap:0.5rem;">' +
+                    (QUICK_COMMENTS[state.staffEditStatus] || []).map(function (phrase) {
+                      return '<button type="button" class="chip-btn" data-action="staff-quick-comment" data-phrase="' + escapeHtml(phrase) + '">' + escapeHtml(phrase) + '</button>';
+                    }).join('') +
+                  '</div>' +
+                '</div>' +
+                (state.staffSaveError ? '<div role="alert" class="alert-box alert-red" style="font-size:0.75rem;font-weight:500;">' + svgIcon('AlertCircle', 16) + '<span>' + escapeHtml(state.staffSaveError) + '</span></div>' : '') +
+                (state.staffSaveSuccess ? '<div role="status" class="alert-box alert-emerald" style="font-size:0.75rem;font-weight:500;">' + svgIcon('CheckCircle2', 16) + '<span>' + escapeHtml(state.staffSaveSuccess) + '</span></div>' : '') +
+                '<div style="display:flex;justify-content:flex-end;">' +
+                  '<button type="submit" class="btn btn-primary" style="min-height:44px;">Сохранить изменения</button>' +
+                '</div>' +
+              '</form>' +
+            '</div>';
+
+        return renderWorkspaceToolbar() +
+          '<section class="container page-section">' +
+            '<div class="page-header page-header-lg-row">' +
+              '<div style="display:flex;align-items:center;gap:1rem;">' +
+                '<div style="width:3.5rem;height:3.5rem;border-radius:9999px;overflow:hidden;border:1px solid #E2E8F0;flex-shrink:0;">' + avatarSvg('staff') + '</div>' +
+                '<div>' +
+                  '<p class="eyebrow">Панель сотрудника деканата</p>' +
+                  '<h1 style="margin-top:0.25rem;font-size:1.75rem;font-weight:700;color:#0F172A;">Обработка заявок на справки</h1>' +
+                '</div>' +
+              '</div>' +
+              '<p style="font-size:0.75rem;color:#64748B;max-width:20rem;">Обновление статуса и комментария сразу отображается в личном кабинете студента и поиске по номеру.</p>' +
+            '</div>' +
+            '<div class="kpi-grid-4">' +
+              '<div class="kpi-cell"><p style="font-size:0.75rem;font-weight:500;color:#64748B;">Всего заявок</p><p class="tabular-nums" style="margin-top:0.375rem;font-family:var(--font-display);font-size:1.875rem;font-weight:700;color:#0F172A;">' + stats.total + '</p></div>' +
+              '<div class="kpi-cell"><p style="font-size:0.75rem;font-weight:500;color:#64748B;">Новые</p><p class="tabular-nums" style="margin-top:0.375rem;font-family:var(--font-display);font-size:1.875rem;font-weight:700;color:#1D4ED8;">' + stats.newCount + '</p></div>' +
+              '<div class="kpi-cell"><p style="font-size:0.75rem;font-weight:500;color:#64748B;">В обработке</p><p class="tabular-nums" style="margin-top:0.375rem;font-family:var(--font-display);font-size:1.875rem;font-weight:700;color:#D97706;">' + stats.inProgress + '</p></div>' +
+              '<div class="kpi-cell"><p style="font-size:0.75rem;font-weight:500;color:#64748B;">Готовые</p><p class="tabular-nums" style="margin-top:0.375rem;font-family:var(--font-display);font-size:1.875rem;font-weight:700;color:#047857;">' + stats.ready + '</p></div>' +
+            '</div>' +
+            '<div style="margin-top:2rem;display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem;align-items:center;">' +
+              '<div class="input-wrap" style="max-width:24rem;">' +
+                '<span class="input-icon">' + svgIcon('Search', 16) + '</span>' +
+                '<input type="search" class="input input-with-icon" value="' + escapeHtml(state.staffSearch) + '" placeholder="Поиск по ФИО, группе или номеру..." data-input="staff-search" />' +
+              '</div>' +
+              '<div class="segmented segmented-muted" style="flex-wrap:wrap;">' +
+                ['Все'].concat(ALL_STATUSES).map(function (st) {
+                  return '<button type="button" class="seg-btn ' + (state.staffStatusFilter === st ? 'active-blue' : '') + '" data-action="staff-status" data-status="' + escapeHtml(st) + '">' + escapeHtml(st) + '</button>';
+                }).join('') +
+              '</div>' +
+            '</div>' +
+            '<div class="staff-grid">' +
+              '<div class="staff-list">' + listHtml + '</div>' +
+              '<div class="staff-inspector" id="staff-inspector-panel">' + inspectorHtml + '</div>' +
+            '</div>' +
+          '</section>';
+      }
+
+      function renderFooter() {
+        var year = new Date().getFullYear();
+        return '<footer class="site-footer no-print">' +
+          '<div class="container">' +
+            '<div class="footer-grid">' +
+              '<div class="footer-col-brand">' +
+                '<div style="display:flex;align-items:center;gap:0.625rem;">' +
+                  '<span class="brand-badge brand-badge-sm" aria-hidden="true">U</span>' +
+                  '<span style="font-family:var(--font-display);font-size:1.125rem;font-weight:700;color:#0F172A;">UniDoc</span>' +
+                '</div>' +
+                '<p style="margin-top:0.75rem;max-width:24rem;font-size:0.875rem;line-height:1.6;color:#475569;">Цифровой сервис заказа и отслеживания университетских справок для студентов и сотрудников деканата.</p>' +
+              '</div>' +
+              '<div class="footer-col-nav">' +
+                '<h3 style="font-size:0.75rem;font-weight:600;color:#0F172A;">Разделы сервиса</h3>' +
+                '<ul style="margin-top:0.75rem;display:flex;flex-direction:column;gap:0.5rem;font-size:0.875rem;color:#475569;">' +
+                  '<li><button type="button" data-action="nav" data-target="home">Главная страница</button></li>' +
+                  '<li><button type="button" data-action="nav" data-target="certificates">Виды справок</button></li>' +
+                  '<li><button type="button" data-action="nav" data-target="order">Оформить заявку</button></li>' +
+                  '<li><button type="button" data-action="nav" data-target="track">Отследить заявку</button></li>' +
+                  '<li><button type="button" data-action="open-auth">Сменить роль (Студент / Сотрудник)</button></li>' +
+                '</ul>' +
+              '</div>' +
+              '<div class="footer-col-info">' +
+                '<h3 style="font-size:0.75rem;font-weight:600;color:#0F172A;">Режим хранения данных</h3>' +
+                '<p style="margin-top:0.75rem;font-size:0.75rem;line-height:1.6;color:#64748B;">Демонстрационное веб-приложение. Все заявки и статусы сохраняются локально в <span class="font-mono">localStorage</span> этого браузера и не являются официальной базой данных университета.</p>' +
+              '</div>' +
+            '</div>' +
+            '<div class="footer-bottom">' +
+              '<p>© ' + year + ' UniDoc · Учебный цифровой сервис университета</p>' +
+              '<p>Статическая клиентская сборка · Данные хранятся локально</p>' +
+            '</div>' +
+          '</div>' +
+        '</footer>';
+      }
+
+      function renderAuthModal() {
+        if (!state.isAuthModalOpen) return '';
+        return '<div class="modal-backdrop no-print" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" data-action="backdrop-close-auth">' +
+          '<div class="modal-card" style="padding:1.75rem;max-width:38rem;" onclick="event.stopPropagation()">' +
+            '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">' +
+              '<div>' +
+                '<h2 id="auth-modal-title" style="font-size:1.35rem;font-weight:700;color:#0F172A;">Выбор демонстрационной роли</h2>' +
+                '<p style="margin-top:0.25rem;font-size:0.875rem;color:#475569;">Учебная имитация доступа без пароля. Выберите роль для просмотра сценария работы сервиса.</p>' +
+              '</div>' +
+              '<button type="button" data-action="close-auth" aria-label="Закрыть окно входа" style="display:flex;align-items:center;justify-content:center;width:2.25rem;height:2.25rem;border-radius:0.5rem;border:1px solid #E2E8F0;color:#64748B;flex-shrink:0;">' + svgIcon('X', 16) + '</button>' +
+            '</div>' +
+            '<div class="form-grid-2" style="margin-top:1.5rem;gap:1rem;">' +
+              '<div style="display:flex;flex-direction:column;justify-content:space-between;border-radius:0.75rem;border:1px solid ' + (state.role === 'student' ? '#1D4ED8' : '#E2E8F0') + ';background:' + (state.role === 'student' ? 'rgba(239,246,255,0.4)' : '#FFFFFF') + ';padding:1.25rem;">' +
+                '<div>' +
+                  '<div style="display:flex;align-items:center;gap:0.75rem;">' +
+                    '<div style="width:2.75rem;height:2.75rem;border-radius:9999px;overflow:hidden;border:1px solid #E2E8F0;flex-shrink:0;">' + avatarSvg('student') + '</div>' +
+                    '<div><div style="display:flex;align-items:center;gap:0.375rem;font-size:0.875rem;font-weight:700;color:#0F172A;"><span style="color:#1D4ED8;display:inline-flex;">' + svgIcon('GraduationCap', 16) + '</span><span>Студент</span></div><p style="font-size:0.75rem;color:#64748B;">Заказ и отслеживание</p></div>' +
+                  '</div>' +
+                  '<div style="margin-top:1rem;display:flex;flex-direction:column;gap:0.75rem;">' +
+                    '<div><label style="display:block;font-size:0.75rem;font-weight:500;color:#475569;">ФИО студента</label><input type="text" class="input" style="margin-top:0.25rem;padding:0.5rem 0.75rem;" value="' + escapeHtml(state.authName) + '" data-input="auth-name" /></div>' +
+                    '<div><label style="display:block;font-size:0.75rem;font-weight:500;color:#475569;">Учебная группа</label><input type="text" class="input" style="margin-top:0.25rem;padding:0.5rem 0.75rem;" value="' + escapeHtml(state.authGroup) + '" data-input="auth-group" /></div>' +
+                  '</div>' +
+                '</div>' +
+                '<button type="button" class="btn btn-sm-primary" style="width:100%;min-height:42px;margin-top:1.25rem;font-size:0.875rem;" data-action="auth-student"><span>Кабинет студента</span>' + svgIcon('ArrowRight', 16) + '</button>' +
+              '</div>' +
+              '<div style="display:flex;flex-direction:column;justify-content:space-between;border-radius:0.75rem;border:1px solid ' + (state.role === 'staff' ? '#1D4ED8' : '#E2E8F0') + ';background:' + (state.role === 'staff' ? 'rgba(239,246,255,0.4)' : '#FFFFFF') + ';padding:1.25rem;">' +
+                '<div>' +
+                  '<div style="display:flex;align-items:center;gap:0.75rem;">' +
+                    '<div style="width:2.75rem;height:2.75rem;border-radius:9999px;overflow:hidden;border:1px solid #E2E8F0;flex-shrink:0;">' + avatarSvg('staff') + '</div>' +
+                    '<div><div style="display:flex;align-items:center;gap:0.375rem;font-size:0.875rem;font-weight:700;color:#0F172A;"><span style="color:#1D4ED8;display:inline-flex;">' + svgIcon('Shield', 16) + '</span><span>Сотрудник деканата</span></div><p style="font-size:0.75rem;color:#64748B;">Обработка заявок</p></div>' +
+                  '</div>' +
+                  '<p style="margin-top:1rem;font-size:0.75rem;line-height:1.55;color:#475569;">Просмотр очереди всех заявок, фильтрация по статусам, изменение статуса готовности и добавление комментариев для студентов.</p>' +
+                  '<div style="margin-top:1rem;border-radius:0.5rem;border:1px solid #E2E8F0;background:#F8FAFC;padding:0.625rem 0.75rem;font-size:0.75rem;color:#475569;">Все изменения мгновенно синхронизируются в <span class="font-mono">localStorage</span> и видны в кабинете студента.</div>' +
+                '</div>' +
+                '<button type="button" class="btn btn-sm-outline" style="width:100%;min-height:42px;margin-top:1.25rem;font-size:0.875rem;border-color:#1D4ED8;color:#1D4ED8;" data-action="auth-staff"><span>Панель деканата</span>' + svgIcon('ArrowRight', 16) + '</button>' +
+              '</div>' +
+            '</div>' +
+            (state.authError ? '<p class="field-error" style="margin-top:1rem;border-radius:0.5rem;border:1px solid #FECACA;background:#FEF2F2;padding:0.5rem 0.75rem;">' + escapeHtml(state.authError) + '</p>' : '') +
+            '<p style="margin-top:1.25rem;font-size:0.75rem;color:#64748B;">Демонстрационная версия: данные хранятся локально только в текущем браузере и не передаются на сервер университета.</p>' +
+          '</div>' +
+        '</div>';
+      }
+
+      function renderPreviewModal() {
+        var req = state.previewRequest;
+        if (!req) return '';
+        return '<div class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="cert-preview-title" data-action="backdrop-close-preview">' +
+          '<div class="modal-card" onclick="event.stopPropagation()">' +
+            '<div class="no-print" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.5rem;border-bottom:1px solid #E2E8F0;padding:1rem 1.5rem;">' +
+              '<h2 id="cert-preview-title" style="font-size:1rem;font-weight:700;color:#0F172A;">Электронная копия документа</h2>' +
+              '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+                '<button type="button" class="btn btn-sm-primary" data-action="download-pdf" data-id="' + escapeHtml(req.id) + '">' + svgIcon('Download', 14) + '<span>Скачать справку PDF</span></button>' +
+                '<button type="button" class="btn btn-sm-outline" data-action="print-preview">' + svgIcon('Printer', 14) + '<span>Печать</span></button>' +
+                '<button type="button" data-action="close-preview" aria-label="Закрыть предпросмотр" style="display:flex;align-items:center;justify-content:center;width:2rem;height:2rem;border-radius:0.5rem;border:1px solid #E2E8F0;color:#64748B;">' + svgIcon('X', 16) + '</button>' +
+              '</div>' +
+            '</div>' +
+            '<div style="padding:2rem;background:#FFFFFF;">' +
+              '<div style="border-radius:0.75rem;border:1px solid #E2E8F0;padding:1.75rem;">' +
+                '<div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:1rem;border-bottom:1px solid #E2E8F0;padding-bottom:1.25rem;">' +
+                  '<div><p style="font-size:0.75rem;font-weight:600;color:#64748B;">Цифровой деканат университета · Демонстрационный бланк</p><h3 style="margin-top:0.25rem;font-size:1.25rem;font-weight:700;color:#0F172A;">' + escapeHtml(req.certificateTitle) + '</h3></div>' +
+                  '<div style="text-align:right;"><p class="font-mono tabular-nums" style="font-size:0.75rem;color:#64748B;">№ ' + escapeHtml(req.requestNumber) + '</p><p style="margin-top:0.15rem;font-size:0.75rem;color:#64748B;">от ' + escapeHtml(formatRussianDate(req.updatedAt, false)) + '</p></div>' +
+                '</div>' +
+                '<div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:1rem;font-size:0.875rem;line-height:1.6;color:#334155;">' +
+                  '<p>Настоящая справка подтверждает, что <strong style="color:#0F172A;">' + escapeHtml(req.studentName) + '</strong> является обучающимся учебной группы <strong class="font-mono" style="color:#0F172A;">' + escapeHtml(req.studentGroup) + '</strong> очной формы обучения.</p>' +
+                  '<p><span style="color:#64748B;">Назначение документа:</span> ' + escapeHtml(req.purpose) + '.</p>' +
+                  (req.staffComment ? '<p><span style="color:#64748B;">Примечание деканата:</span> ' + escapeHtml(req.staffComment) + '</p>' : '') +
+                '</div>' +
+                '<div style="margin-top:2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;border-top:1px solid #E2E8F0;padding-top:1.25rem;">' +
+                  '<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;font-weight:500;color:#047857;">' + svgIcon('CheckCircle2', 16) + '<span>Статус в системе: ' + escapeHtml(req.status) + '</span></div>' +
+                  '<p style="font-size:0.75rem;color:#94A3B8;">Учебный макет электронного документа UniDoc</p>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      function renderToastsHtml() {
+        if (state.toasts.length === 0) return '';
+        return '<div class="toast-stack no-print" aria-live="polite">' +
+          state.toasts.map(function (t) {
+            var icon = t.variant === 'success' ? 'CheckCircle2' : t.variant === 'error' ? 'AlertCircle' : 'Info';
+            var color = t.variant === 'success' ? '#059669' : t.variant === 'error' ? '#DC2626' : '#1D4ED8';
+            return '<div class="toast-card">' +
+              '<span style="color:' + color + ';margin-top:2px;flex-shrink:0;">' + svgIcon(icon, 20) + '</span>' +
+              '<div style="flex:1;min-width:0;">' +
+                '<p style="font-size:0.875rem;font-weight:600;color:#0F172A;">' + escapeHtml(t.title) + '</p>' +
+                '<p style="margin-top:0.15rem;font-size:0.75rem;line-height:1.45;color:#475569;">' + escapeHtml(t.message) + '</p>' +
+                (t.requestNumber
+                  ? '<button type="button" data-action="toast-track" data-toast-id="' + escapeHtml(t.id) + '" data-num="' + escapeHtml(t.requestNumber) + '" style="margin-top:0.5rem;font-size:0.75rem;font-weight:600;color:#1D4ED8;">Открыть статус заявки →</button>'
+                  : '') +
+              '</div>' +
+              '<button type="button" data-action="dismiss-toast" data-toast-id="' + escapeHtml(t.id) + '" aria-label="Закрыть уведомление" style="padding:0.25rem;color:#94A3B8;">' + svgIcon('X', 16) + '</button>' +
+            '</div>';
+          }).join('') +
+        '</div>';
+      }
+
+      function renderToastsOnly() {
+        var holder = document.getElementById('toast-holder');
+        if (holder) holder.innerHTML = renderToastsHtml();
+      }
+
+      function render() {
+        var active = document.activeElement;
+        var focusAttr = active && active.getAttribute('data-input');
+        var selStart = active && typeof active.selectionStart === 'number' ? active.selectionStart : null;
+        var selEnd = active && typeof active.selectionEnd === 'number' ? active.selectionEnd : null;
+
+        var storageBanner = state.storageError
+          ? '<div role="alert" class="storage-banner">' +
+              '<div class="container storage-banner-inner">' +
+                '<div style="display:flex;align-items:center;gap:0.5rem;">' + svgIcon('AlertTriangle', 16) + '<span>' + escapeHtml(state.storageError) + '</span></div>' +
+                '<button type="button" data-action="clear-storage-error" aria-label="Скрыть предупреждение" style="padding:0.25rem;">' + svgIcon('X', 14) + '</button>' +
+              '</div>' +
+            '</div>'
+          : '';
+
+        var pageHtml = '';
+        switch (state.route) {
+          case 'certificates': pageHtml = renderCertificatesPage(); break;
+          case 'student': pageHtml = renderStudentDashboard(); break;
+          case 'order': pageHtml = renderOrderPage(); break;
+          case 'track': pageHtml = renderTrackPage(); break;
+          case 'staff': pageHtml = renderStaffDashboard(); break;
+          case 'home':
+          default: pageHtml = renderHomePage(); break;
+        }
+
+        document.getElementById('app').innerHTML =
+          renderHeader() +
+          storageBanner +
+          '<main class="main-content">' + pageHtml + '</main>' +
+          renderFooter() +
+          renderAuthModal() +
+          renderPreviewModal() +
+          '<div id="toast-holder">' + renderToastsHtml() + '</div>';
+
+        // Восстановление фокуса при перерисовке текстовых полей поиска
+        if (focusAttr) {
+          var restored = document.querySelector('[data-input="' + focusAttr + '"]');
+          if (restored) {
+            restored.focus();
+            if (selStart !== null && typeof restored.setSelectionRange === 'function') {
+              try { restored.setSelectionRange(selStart, selEnd); } catch (e) {}
+            }
+          }
+        }
+      }
+
+      // =========================================================================
+      // 7. Делегирование событий (Click, Input, Change, Submit, Cross-tab sync)
+      // =========================================================================
+      var appRoot = document.getElementById('app');
+
+      appRoot.addEventListener('click', function (e) {
+        var target = e.target.closest('[data-action]');
+        if (!target) return;
+        var action = target.getAttribute('data-action');
+
+        switch (action) {
+          case 'nav':
+            navigate(target.getAttribute('data-target'), {
+              scrollToId: target.getAttribute('data-scroll') || undefined
+            });
+            break;
+          case 'order-cert':
+            state.orderCreatedRequest = null;
+            navigate('order', { certificateId: target.getAttribute('data-cert') });
+            break;
+          case 'track-num':
+            navigate('track', { trackNumber: target.getAttribute('data-num') || '' });
+            break;
+          case 'toggle-mobile-menu':
+            state.mobileMenuOpen = !state.mobileMenuOpen;
+            render();
+            break;
+          case 'open-auth':
+            state.authName = state.studentProfile.fullName;
+            state.authGroup = state.studentProfile.group;
+            state.authError = null;
+            state.isAuthModalOpen = true;
+            state.mobileMenuOpen = false;
+            render();
+            break;
+          case 'close-auth':
+          case 'backdrop-close-auth':
+            state.isAuthModalOpen = false;
+            render();
+            break;
+          case 'auth-student': {
+            var n = state.authName.trim();
+            var g = state.authGroup.trim();
+            if (n.length < 3 || g.length < 2) {
+              state.authError = 'Укажите ФИО и учебную группу для входа в кабинет студента.';
+              render();
+              return;
+            }
+            state.authError = null;
+            updateStudentProfile(Object.assign({}, state.studentProfile, { fullName: n, group: g }));
+            state.isAuthModalOpen = false;
+            setRole('student', true);
+            break;
+          }
+          case 'auth-staff':
+            state.authError = null;
+            state.isAuthModalOpen = false;
+            setRole('staff', true);
+            break;
+          case 'switch-role':
+            setRole(target.getAttribute('data-role'), true);
+            break;
+          case 'toggle-notif':
+            state.notifOpen = !state.notifOpen;
+            render();
+            break;
+          case 'mark-all-read':
+            state.notifications = state.notifications.map(function (n) { return Object.assign({}, n, { read: true }); });
+            saveNotificationsToStorage(state.notifications);
+            render();
+            break;
+          case 'open-notif': {
+            var nid = target.getAttribute('data-id');
+            state.notifications = state.notifications.map(function (n) {
+              return n.id === nid ? Object.assign({}, n, { read: true }) : n;
+            });
+            saveNotificationsToStorage(state.notifications);
+            state.notifOpen = false;
+            navigate('track', { trackNumber: target.getAttribute('data-num') || '' });
+            break;
+          }
+          case 'reset-demo':
+            resetDemoData();
+            break;
+          case 'clear-storage-error':
+            state.storageError = null;
+            render();
+            break;
+          case 'clear-cert-search':
+            state.certSearchQuery = '';
+            render();
+            break;
+          case 'pick-purpose':
+            state.orderPurpose = target.getAttribute('data-purpose') || '';
+            delete state.orderFieldErrors.purpose;
+            render();
+            break;
+          case 'pick-delivery':
+            state.orderDelivery = target.getAttribute('data-delivery');
+            render();
+            break;
+          case 'copy-req-num':
+            if (state.orderCreatedRequest && navigator.clipboard) {
+              navigator.clipboard.writeText(state.orderCreatedRequest.requestNumber).then(function () {
+                state.orderCopied = true;
+                render();
+                window.setTimeout(function () {
+                  state.orderCopied = false;
+                  render();
+                }, 2000);
+              }).catch(function () {});
+            }
+            break;
+          case 'order-another':
+            state.orderCreatedRequest = null;
+            state.orderComment = '';
+            state.orderFieldErrors = {};
+            state.orderSubmitError = null;
+            render();
+            break;
+          case 'download-pdf': {
+            var rId = target.getAttribute('data-id');
+            var req = state.requests.find(function (r) { return r.id === rId; });
+            if (req) {
+              try {
+                downloadCertificatePdf(req);
+                pushToast({
+                  title: 'PDF сформирован (' + req.requestNumber + ')',
+                  message: 'Файл UniDoc_' + req.requestNumber + '.pdf загружен.',
+                  variant: 'success'
+                });
+              } catch (err) {
+                pushToast({
+                  title: 'Ошибка формирования PDF',
+                  message: 'Используйте кнопку предпросмотра для печати документа.',
+                  variant: 'error'
+                });
+              }
+            }
+            break;
+          }
+          case 'preview-pdf': {
+            var pId = target.getAttribute('data-id');
+            state.previewRequest = state.requests.find(function (r) { return r.id === pId; }) || null;
+            render();
+            break;
+          }
+          case 'close-preview':
+          case 'backdrop-close-preview':
+            state.previewRequest = null;
+            render();
+            break;
+          case 'print-preview':
+            window.print();
+            break;
+          case 'toggle-edit-profile':
+            state.draftProfileName = state.studentProfile.fullName;
+            state.draftProfileGroup = state.studentProfile.group;
+            state.profileError = null;
+            state.editingProfile = !state.editingProfile;
+            render();
+            break;
+          case 'cancel-profile':
+            state.editingProfile = false;
+            render();
+            break;
+          case 'student-scope':
+            state.studentScope = target.getAttribute('data-scope');
+            render();
+            break;
+          case 'student-status':
+            state.studentStatusFilter = target.getAttribute('data-status');
+            render();
+            break;
+          case 'reset-student-filters':
+            state.studentSearch = '';
+            state.studentStatusFilter = 'Все';
+            render();
+            break;
+          case 'toggle-expand': {
+            var eId = target.getAttribute('data-id');
+            state.studentExpandedId = state.studentExpandedId === eId ? null : eId;
+            render();
+            break;
+          }
+          case 'staff-status':
+            state.staffStatusFilter = target.getAttribute('data-status');
+            render();
+            break;
+          case 'reset-staff-filters':
+            state.staffSearch = '';
+            state.staffStatusFilter = 'Все';
+            render();
+            break;
+          case 'select-staff-req': {
+            var sId = target.getAttribute('data-id');
+            var foundReq = state.requests.find(function (r) { return r.id === sId; });
+            if (foundReq) {
+              state.staffSelectedId = foundReq.id;
+              state.staffEditStatus = foundReq.status;
+              state.staffEditComment = foundReq.staffComment;
+              state.staffSaveError = null;
+              state.staffSaveSuccess = null;
+              render();
+              if (window.innerWidth < 1024) {
+                var panel = document.getElementById('staff-inspector-panel');
+                if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }
+            break;
+          }
+          case 'staff-pick-status':
+            state.staffEditStatus = target.getAttribute('data-status');
+            state.staffSaveError = null;
+            render();
+            break;
+          case 'staff-quick-comment':
+            state.staffEditComment = target.getAttribute('data-phrase') || '';
+            state.staffSaveError = null;
+            render();
+            break;
+          case 'dismiss-toast':
+            dismissToast(target.getAttribute('data-toast-id'));
+            break;
+          case 'toast-track':
+            dismissToast(target.getAttribute('data-toast-id'));
+            navigate('track', { trackNumber: target.getAttribute('data-num') || '' });
+            break;
+        }
+      });
+
+      appRoot.addEventListener('input', function (e) {
+        var el = e.target;
+        var key = el.getAttribute('data-input');
+        if (!key) return;
+
+        switch (key) {
+          case 'cert-search':
+            state.certSearchQuery = el.value;
+            render();
+            break;
+          case 'order-name':
+            state.orderName = el.value;
+            delete state.orderFieldErrors.studentName;
+            break;
+          case 'order-group':
+            state.orderGroup = el.value;
+            delete state.orderFieldErrors.studentGroup;
+            break;
+          case 'order-purpose':
+            state.orderPurpose = el.value;
+            delete state.orderFieldErrors.purpose;
+            break;
+          case 'order-comment':
+            state.orderComment = el.value;
+            break;
+          case 'track-input':
+            state.trackInput = el.value;
+            break;
+          case 'student-search':
+            state.studentSearch = el.value;
+            render();
+            break;
+          case 'draft-profile-name':
+            state.draftProfileName = el.value;
+            break;
+          case 'draft-profile-group':
+            state.draftProfileGroup = el.value;
+            break;
+          case 'staff-search':
+            state.staffSearch = el.value;
+            render();
+            break;
+          case 'staff-comment':
+            state.staffEditComment = el.value;
+            state.staffSaveError = null;
+            break;
+          case 'auth-name':
+            state.authName = el.value;
+            break;
+          case 'auth-group':
+            state.authGroup = el.value;
+            break;
+        }
+      });
+
+      appRoot.addEventListener('change', function (e) {
+        var el = e.target;
+        if (el.getAttribute('data-change') === 'order-cert') {
+          state.orderCertId = el.value;
+          var cert = CERTIFICATE_MAP[el.value];
+          if (cert) state.orderPurpose = cert.defaultPurpose;
+          render();
+        }
+      });
+
+      appRoot.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var formId = e.target.id;
+
+        if (formId === 'order-form') {
+          var errs = {};
+          if (state.orderName.trim().length < 3) errs.studentName = 'Введите ФИО полностью (минимум 3 символа).';
+          if (state.orderGroup.trim().length < 2) errs.studentGroup = 'Укажите учебную группу (например, ИВТ-22-04).';
+          if (!state.orderCertId || !CERTIFICATE_MAP[state.orderCertId]) errs.certificateTypeId = 'Выберите вид справки.';
+          if (state.orderPurpose.trim().length < 4) errs.purpose = 'Укажите цель получения документа.';
+          state.orderFieldErrors = errs;
+          if (Object.keys(errs).length > 0) {
+            state.orderSubmitError = 'Проверьте корректность заполнения обязательных полей.';
+            render();
+            return;
+          }
+          var res = createRequest({
+            studentName: state.orderName,
+            studentGroup: state.orderGroup,
+            certificateTypeId: state.orderCertId,
+            purpose: state.orderPurpose,
+            deliveryMethod: state.orderDelivery,
+            studentComment: state.orderComment
+          });
+          if (!res.ok) {
+            state.orderSubmitError = res.error;
+            render();
+            return;
+          }
+          state.orderSubmitError = null;
+          state.orderCreatedRequest = res.request;
+          render();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        if (formId === 'track-form') {
+          var clean = state.trackInput.trim().toUpperCase();
+          if (!clean) {
+            state.trackError = 'Введите номер заявки, например UD-2026-1001.';
+            state.trackSearched = '';
+            render();
+            return;
+          }
+          state.trackError = null;
+          state.trackSearched = clean;
+          writeHashForRoute('track', clean);
+          render();
+        }
+
+        if (formId === 'profile-edit-form') {
+          if (state.draftProfileName.trim().length < 3 || state.draftProfileGroup.trim().length < 2) {
+            state.profileError = 'Укажите корректное ФИО и номер группы.';
+            render();
+            return;
+          }
+          state.profileError = null;
+          updateStudentProfile(Object.assign({}, state.studentProfile, {
+            fullName: state.draftProfileName,
+            group: state.draftProfileGroup
+          }));
+          state.editingProfile = false;
+          render();
+        }
+
+        if (formId === 'staff-update-form') {
+          if (!state.staffSelectedId) return;
+          state.staffSaveError = null;
+          state.staffSaveSuccess = null;
+          var upd = updateRequestStatus({
+            id: state.staffSelectedId,
+            status: state.staffEditStatus,
+            staffComment: state.staffEditComment
+          });
+          if (!upd.ok) {
+            state.staffSaveError = upd.error;
+            render();
+            return;
+          }
+          state.staffSaveSuccess = 'Изменения сохранены. Статус заявки ' + upd.request.requestNumber + ' обновлён на «' + upd.request.status + '».';
+          render();
+        }
+      });
+
+      document.addEventListener('mousedown', function (e) {
+        if (!state.notifOpen) return;
+        var container = document.getElementById('notif-dropdown-container');
+        if (container && !container.contains(e.target)) {
+          state.notifOpen = false;
+          render();
+        }
+      });
+
+      window.addEventListener('hashchange', function () {
+        var parsed = parseRouteFromHash();
+        state.route = parsed.route;
+        if (parsed.trackNumber) {
+          state.trackInput = parsed.trackNumber;
+          state.trackSearched = parsed.trackNumber;
+        }
+        render();
+      });
+
+      window.addEventListener('storage', function (event) {
+        if (event.key === STORAGE_KEYS.REQUESTS) {
+          state.requests = loadRequestsFromStorage().data;
+          render();
+        }
+        if (event.key === STORAGE_KEYS.NOTIFICATIONS) {
+          var nextNotifs = loadNotificationsFromStorage();
+          if (nextNotifs.length > state.notifications.length && nextNotifs[0]) {
+            var latest = nextNotifs[0];
+            pushToast({
+              title: latest.title,
+              message: latest.message,
+              variant: latest.status === 'Готова' ? 'success' : latest.status === 'Отклонена' ? 'error' : 'info',
+              requestNumber: latest.requestNumber
+            });
+          }
+          state.notifications = nextNotifs;
+          render();
+        }
+        if (event.key === STORAGE_KEYS.PROFILE) {
+          state.studentProfile = loadProfileFromStorage();
+          render();
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
